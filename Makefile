@@ -10,13 +10,16 @@ all: build/degensContractLib.js build/Degens.json build/TestToken.json build/Que
 clean:
 	rm -rf build/ artifacts/ contracts-temp-build/ coverage/ .node-xmlhttprequest*
 
-test: all build/degensContractLib.js check_requires run_tests
+test: all check_requires run_tests
 
 run_tests:
 	set -e ; for file in `ls -1 t/*.js | sort`; do echo "------- TEST:" $$file "-------"; node $$file; done
 	@echo
 	@echo ALL TESTS PASSED.
 	@echo
+
+check_node_modules:
+	perl -e 'die "\n\n**** no node_modules found, please run: npm install ****\n\n\n" if !-e "node_modules/"'
 
 check_requires:
 	egrep 'require|revert' contracts/Degens.sol | perl -ne 'die "require/revert without DERR: $$_" unless /(DERR_\w+)/; die "DERR too long: $$1: " . length($$1) if length($$1) > 32; die "duplicate DERR: $$1" if $$seen{$$1}++;'
@@ -36,7 +39,7 @@ build/QueryDegens.json: contracts/QueryDegens.sol
 	$(SOLC) --optimize --combined-json abi,bin contracts/QueryDegens.sol > build/QueryDegens.json.tmp
 	mv build/QueryDegens.json.tmp build/QueryDegens.json
 
-build/degensContractLib.js: jslib/degensContractLib.js
+build/degensContractLib.js: check_node_modules jslib/degensContractLib.js
 	mkdir -p build/
 	./node_modules/.bin/babel jslib/degensContractLib.js --plugins=@babel/transform-modules-commonjs --out-file build/degensContractLib.js
 
