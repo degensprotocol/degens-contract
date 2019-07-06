@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"$if(lang)$ lang="$lang$" xml:lang="$lang$"$endif$$if(dir)$ dir="$dir$"$endif$>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+$for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+$endfor$
+$if(date-meta)$
+  <meta name="date" content="$date-meta$" />
+$endif$
+$if(keywords)$
+  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+$endif$
+  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+  <style type="text/css">code{white-space: pre;}</style>
+$if(quotes)$
+  <style type="text/css">q { quotes: "“" "”" "‘" "’"; }</style>
+$endif$
+$if(highlighting-css)$
+  <style type="text/css">
+$highlighting-css$
+  </style>
+$endif$
+$for(css)$
+  <link rel="stylesheet" href="$css$" type="text/css" />
+$endfor$
+$if(math)$
+  $math$
+$endif$
+$for(header-includes)$
+  $header-includes$
+$endfor$
+
+
+<link rel="stylesheet" href="https://unpkg.com/tachyons@4.7.0/css/tachyons.min.css" class="next-head"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css" />
+
+<style>
+body {
+  background-color:#FFF;
+}
+
+.transition--300 {
+  transition:all 300ms ease-in-out;
+}
+
+.toc {
+  height:100%;
+  width:280px;
+  transform:translateX(0);
+}
+
+.content {
+  position:relative;
+  max-width: calc(100% - 280px - 100px);
+  padding-left: 75px;
+  padding-right: 75px;
+}
+
+.content h1:first-child, .content h2:first-child {
+  padding-top:0;
+  margin-top:0;
+}
+
+.title {
+  padding-left: 75px;
+  font-size: 2.5em;
+  max-width: calc(100% - 280px - 100px);
+}
+
+.content ul,.content ol {
+  list-style:inherit;
+}
+
+.content a {
+  color:#0977c3;
+  text-decoration:none;
+  border-bottom: 1px solid #EEE;
+  transition:all 300ms ease;
+}
+
+.content a:hover {
+  border-bottom: 1px solid #0977c3;
+}
+
+.content a:hover.no-decoration {
+  border-bottom:0;
+}
+
+a.toc-link {
+  text-decoration:none;
+}
+
+.toc {
+  background-color:rgba(255,255,255,0.9);
+  transform:translateX(-100%);
+}
+
+.toc.toc-right {
+  transform:translateX(100%);
+  right:0;
+}
+
+@media (min-width: 52em) {
+  .toc {
+    transform:translateX(0)
+  }
+
+  .toc.toc-right {
+    transform:translateX(0);
+  }
+}
+
+body {
+  font-size:1.2rem;
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  padding-top:0.5em;
+}
+
+h1:focus,h2:focus,h3:focus,h4:focus,h5:focus,h6:focus {
+  outline:0;
+}
+
+p {
+  margin-top:0.25rem;
+}
+
+pre {
+  font-size: 80%;
+}
+
+table {
+  border: 2px solid #FFFFFF;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+table td, table th {
+  border: 1px solid #FFFFFF;
+  padding: 3px 4px;
+}
+table tbody td {
+}
+table td:nth-child(even) {
+  background: #EBEBEB;
+}
+table thead {
+  background: #FFFFFF;
+  border-bottom: 4px solid #333333;
+}
+table thead th {
+  font-size: 110%;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  border-left: 2px solid #333333;
+}
+table thead th:first-child {
+  border-left: none;
+}
+
+</style>
+
+
+<script async type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+</head>
+<body>
+$for(include-before)$
+$include-before$
+$endfor$
+$if(title)$
+<div id="$idprefix$header">
+<h1 class="title">$title$</h1>
+$if(subtitle)$
+<h1 class="subtitle">$subtitle$</h1>
+$endif$
+$for(author)$
+<h2 class="author">$author$</h2>
+$endfor$
+$if(date)$
+<h3 class="date">$date$</h3>
+$endif$
+</div>
+$endif$
+
+<div class="whole-wrapper center dark-gray lh-copy">
+  <nav id="toc" class="toc toc-right js-toc relative z-1 transition--300 absolute pa4 is-position-fixed"></nav>
+
+  <h1 class="title">Degens Protocol Documentation</h1>
+
+<div id="main-content" class="content js-toc-content pa4">$body$</div>
+</div>
+
+$for(include-after)$
+$include-after$
+$endfor$
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script>
+tocbot.init({
+  // Where to render the table of contents.
+  tocSelector: '#toc',
+  // Where to grab the headings to build the table of contents.
+  contentSelector: '#main-content',
+  // Which headings to grab inside of the contentSelector element.
+  headingSelector: 'h1, h2, h3, h4',
+});
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,1219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+
+
+<link rel="stylesheet" href="https://unpkg.com/tachyons@4.7.0/css/tachyons.min.css" class="next-head"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.css" />
+
+<style>
+body {
+  background-color:#FFF;
+}
+
+.transition--300 {
+  transition:all 300ms ease-in-out;
+}
+
+.toc {
+  height:100%;
+  width:280px;
+  transform:translateX(0);
+}
+
+.content {
+  position:relative;
+  max-width: calc(100% - 280px - 100px);
+  padding-left: 75px;
+  padding-right: 75px;
+}
+
+.content h1:first-child, .content h2:first-child {
+  padding-top:0;
+  margin-top:0;
+}
+
+.title {
+  padding-left: 75px;
+  font-size: 2.5em;
+  max-width: calc(100% - 280px - 100px);
+}
+
+.content ul,.content ol {
+  list-style:inherit;
+}
+
+.content a {
+  color:#0977c3;
+  text-decoration:none;
+  border-bottom: 1px solid #EEE;
+  transition:all 300ms ease;
+}
+
+.content a:hover {
+  border-bottom: 1px solid #0977c3;
+}
+
+.content a:hover.no-decoration {
+  border-bottom:0;
+}
+
+a.toc-link {
+  text-decoration:none;
+}
+
+.toc {
+  background-color:rgba(255,255,255,0.9);
+  transform:translateX(-100%);
+}
+
+.toc.toc-right {
+  transform:translateX(100%);
+  right:0;
+}
+
+@media (min-width: 52em) {
+  .toc {
+    transform:translateX(0)
+  }
+
+  .toc.toc-right {
+    transform:translateX(0);
+  }
+}
+
+body {
+  font-size:1.2rem;
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  padding-top:0.5em;
+}
+
+h1:focus,h2:focus,h3:focus,h4:focus,h5:focus,h6:focus {
+  outline:0;
+}
+
+p {
+  margin-top:0.25rem;
+}
+
+pre {
+  font-size: 80%;
+}
+
+table {
+  border: 2px solid #FFFFFF;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+table td, table th {
+  border: 1px solid #FFFFFF;
+  padding: 3px 4px;
+}
+table tbody td {
+}
+table td:nth-child(even) {
+  background: #EBEBEB;
+}
+table thead {
+  background: #FFFFFF;
+  border-bottom: 4px solid #333333;
+}
+table thead th {
+  font-size: 110%;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  border-left: 2px solid #333333;
+}
+table thead th:first-child {
+  border-left: none;
+}
+
+</style>
+
+
+<script async type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+</head>
+<body>
+
+<div class="whole-wrapper center dark-gray lh-copy">
+  <nav id="toc" class="toc toc-right js-toc relative z-1 transition--300 absolute pa4 is-position-fixed"></nav>
+
+  <h1 class="title">Degens Protocol Documentation</h1>
+
+<div id="main-content" class="content js-toc-content pa4"><h1 id="introduction">Introduction</h1>
+<p>Degens is a peer-to-peer betting exchange protocol. Rather than customer funds being held in escrow by a central company, it uses an Ethereum smart contract. This documentation describes how the protocol is designed at a technical level.</p>
+<h2 id="decentralized">Decentralized</h2>
+<p>In the Degens smart contract there are no owners, administrators, or any other privileged addresses. That means that every Ethereum address has the same privileges as any other. That even includes us, the developers. There are no owner modifiers, escape hatches, contract pausing, halting, or self-destructing. There are no mandatory fees, developer rewards, or rent-seeking utility tokens.</p>
+<p>That is to say, the Degens smart contract is as decentralized as it is possible for an Ethereum smart contract to be. Participants specify their trust relationships in a hybrid on-chain/off-chain system. This document will explain how this works in detail.</p>
+<h2 id="sports-betting">Sports Betting</h2>
+<p>Although the smart contract is not specific to sports betting, that is our initial area of focus. For our purposes, sporting events have the following advantages over other instruments:</p>
+<ul>
+<li>Sports betting is a large existing market that is not well-served by existing systems. Current systems suffer from unreliable, slow, and expensive payment processing, jurisdictional roadblocks, high trading fees, and significant counter-party risk (ie, bookies not paying out). We believe that a decentralized application provides an ideal solution to these problems.</li>
+<li>Most sporting events result in unambiguous and objective outcomes. These outcomes can by verified by watching the events on television, or by checking officially posted scores. Because of this, there is less of a need for resolving ambiguous or subjective outcomes, which is difficult to do fairly.</li>
+</ul>
+<h2 id="multi-token-denominated">Multi-Token Denominated</h2>
+<p>Degens allows betting with any <a href="https://en.wikipedia.org/wiki/ERC-20">ERC-20</a> token. For example, WETH (wrapped ETH) or DAI (a stable token pegged to USD) are good choices since they are popular (many customers already have them) and are very liquid (easy and cheap to get if you don't have them).</p>
+<p>Aside from the token chosen for betting, and a small amount of ETH needed for paying gas, no other tokens are necessary. Even ETH is not necessarily required, for example with the <a href="#matching">matching provider strategy</a>.</p>
+<p>Many previous attempts at decentralized betting systems have created application-specific tokens that are needed for betting. We believe that requiring these &quot;app-tokens&quot; is undesirable. Not only must users learn how and where to acquire them, but to do so they need to pay market spreads (which will be high prior to substantial demand) and trading fees (which may be denominated in yet more special-purpose tokens).</p>
+<p>Even obtaining and using WETH or DAI may be an obstacle for non-technical users. However, compared to other demographics, sports bettors are accustomed to having to jump through various hoops prior to being able to place bets. There is in fact an entire industry built around moving funds in unorthodox ways for the purpose of sports betting (NetTeller, Skrill).</p>
+<h2 id="custody-of-funds">Custody of Funds</h2>
+<p>The primary advantage of using a smart contract for a betting exchange is to reduce counter-party risk for the users. Assuming there are no bugs in the smart contract, not even developers or operators are able to access approved funds or funds locked into trades. Neither are they able to freeze accounts or unwind trades to prevent trading or withdrawals.</p>
+<p><a href="#oracles">Oracles</a> are parties who are intended to be separate from the exchange. These parties do have an attack vector in that it is possible for them to mis-report outcomes of events. However, if an oracle does this they will leave undeniable evidence on the blockchain. We have designed the system to minimize the incentive for oracles to do this.</p>
+<p>A corollary to the exchange not being able to freeze funds or interfere with trading is that nobody has the ability to reverse or unwind any activity on the platform. All trades are final. However, it is in the interests of exchanges and oracles building on top of the protocol to build reputable businesses. Any users who feel they have suffered losses due to errors on our part are encouraged to contact their providers.</p>
+<p>If for whatever reason oracles don't finalize a match, funds can be recovered after waiting a certain period of time. See the <a href="#funds-recovery">Funds Recovery</a> section below.</p>
+<h2 id="fixed-odds">Fixed-odds</h2>
+<p>All trades on Degens are <strong>fixed-odds</strong> bets. This means that the odds of a trade are known and agreed upon beforehand by the parties involved, and they cannot be changed after the fact. Of course, new subsequent trades can be made at different odds. Making new trades in the same direction as previous trades can serve to average up or down the position's cost basis, and trades in the opposite direction can either fully or partially close out a position at a profit or a loss, in which cases the account's balance will be immediately credited.</p>
+<p>Fixed-odds betting is distinct from <a href="https://en.wikipedia.org/wiki/Parimutuel_betting">parimutuel betting</a> where all the bets on an event are pooled together and therefore the odds are only known at the end of the betting session (usually right before the event starts).</p>
+<h2 id="in-game-trading">In-game Trading</h2>
+<p>Orders may be offered and trades may be created at any point up until match finalization. This allows users to enter into new positions or exit existing positions at any point prior to or during an event. Users who are unwilling to wait for finalization may even trade after the event has completed so as to have their balance available immediately (at a small cost).</p>
+<p>We view this as an important aspect of the protocol. Being able to trade at half-time and TV intermissions, or even during live game play, adds a new level of excitement to the trading experience. However, due to the nature of distributed consensus as implemented by Ethereum, certain considerations need to be kept in mind. When two or more conflicting transactions are broadcast to the network, it is indeterminate which one will be mined first. For example, if an unexpected play occurs, a market maker who has an outstanding order may attempt to cancel the order at the same time one or more participants attempt to trade on it. Whether a trade is made, and by whom, is indeterminate.</p>
+<p>Furthermore, not only is transaction ordering indeterminate, it can be influenced by gas price which adds a new dimension to in-game trading, one that may be attractive to sophisticated traders. Participants who don't wish to include gas prices in their trading models are advised to restrict in-game trading to half-time, timeouts, TV intermissions, etc, and to make careful use of the order expiry parameter.</p>
+<p>By using a matching model, an exchange can eliminate the concerns above by introducing an amount of centralization in the order matching, as will be discussed in the section on <a href="#provider-strategies">provider strategies</a>.</p>
+<h2 id="partial-trades">Partial Trades</h2>
+<p>Orders may offer any amount of a token to be traded, and orders may be completely or partially filled by trades created by one or more users. Once a trade is created, each of the two parties to the trade will have <strong>positions</strong> on the event, meaning that one of the parties will profit given one outcome, and the other will profit given the opposite. However, if either party wishes to exit their position, and there are willing participants in the market, the position may be fully or partially sold off, either at a different price (for a profit or a loss), or at the same price (for no profit or loss).</p>
+<h2 id="collateral">Collateral</h2>
+<p>In order to enter trades, users need to have balances in the tokens they choose to use for betting. They also need to ensure they have granted the Degens smart contract approval to access these balances. The smart contract ensures that the balance will be only be accessed according to the user's wishes as expressed through signed orders they create.</p>
+<p>Collateral requirements in Degens are more flexible than on many other platforms, and are designed with market makers in mind. Creating an order does not require reserving any funds from a user's balance. In fact, a user may create many orders all backed by the same account balance. Only once a trade is executed are funds reserved. If this reduces the balance enough that it affects the ability to fill the other outstanding orders, those orders are automatically reduced or cancelled to compensate.</p>
+<p>Because users only need a balance to enter into trades, they can in fact create orders when they have 0 balance. The orders won't be visible to anyone until the user deposits or approves funds, claims winnings from a finalized match, or closes an existing position in a different match. At that point the orders will appear in the order-book. But note that some providers may not accept or relay unbacked orders.</p>
+<p>Additionally, trades made in the opposite direction of an existing position can use the position itself as collateral. Because of this, given a position on an event and a zero balance, orders can still be created that, if filled, will partially or fully close out that position. And furthermore, the proceeds from closing that position can be used to create a new opposite position, even within the same trade.</p>
+<h1 id="events-and-matches">Events and Matches</h1>
+<h2 id="events">Events</h2>
+<p>An event is a future game, contest, or activity that people may be interested in betting on. It doesn't contain the terms of any bets, but simply acts as an identifier for this particular game. It is specified by a JSON object that contains such information as the type of sport, teams, scheduled kick-off time, and other information. For example:</p>
+<pre><code>{
+    &quot;kickoff&quot;:&quot;1559251530&quot;,
+    &quot;sport&quot;:&quot;nfl&quot;,
+    &quot;team1&quot;:&quot;Green Bay Packers&quot;,
+    &quot;team2&quot;:&quot;New England Patriots&quot;
+}</code></pre>
+<p>The exact structure of this JSON depends on the nature of the event, and is out of scope for the smart contract. Participants should come to a consensus on conventions for this structure.</p>
+<p>Every event has a corresponding eventId, which is the keccak256 hash of this JSON after the JSON normalization process.</p>
+<h2 id="json-normalization">JSON Normalization</h2>
+<p>The JSON normalization process is as follows:</p>
+<ol style="list-style-type: decimal">
+<li>Convert all leaf values to UTF-8 strings
+<ul>
+<li>Hashes and addresses are converted to lower-case hexadecimal strings with a <code>0x</code> prefix</li>
+<li>Other numeric values are converted to decimal strings</li>
+</ul></li>
+<li>Sort keys alphabetically</li>
+<li>Minify (remove all unnecessary white-space)</li>
+</ol>
+<p>After performing the above, the JSON is in a normalized format and is ready for hashing.</p>
+<h2 id="matches">Matches</h2>
+<p>A match consists of all the details for a particular proposition that participants can bet on. It is represented by a JSON object also. Here is an example:</p>
+<pre><code>{
+    &quot;eventId&quot;: &quot;0x01640ce2f97a4180d27d12e580c1264617f36d0ffec5e37faf18108fd0827ab0&quot;,
+
+    &quot;market&quot;: {
+        &quot;type&quot;: &quot;spread&quot;,
+        &quot;spread&quot;: &quot;-6.5&quot;,
+        &quot;rules&quot;: &quot;0x541ea6ddbb4a619edd1f27de8ae661db1127dd7352d87f57526332654b699ebd&quot;
+    },
+
+    &quot;graderQuorum&quot;: &quot;2&quot;,
+    &quot;graderFee&quot;: &quot;2500000&quot;,
+    &quot;graders&quot;: [
+        &quot;0x51fc2b0de020257db35e3a425b73e13c1e0451ad&quot;,
+        &quot;0x9574f0146c45002e4742762adc74d78f78271349&quot;,
+        &quot;0x1b032aa9c8a867dfdbd09a3b419d5e52f9fb7fa0&quot;
+    ],
+
+    &quot;recoveryTime&quot;: &quot;1567027530&quot;,
+    &quot;cancelPrice&quot;: &quot;500000000&quot;
+}</code></pre>
+<p>Each match references an event by its <code>eventId</code>. Multiple matches can reference the same event. For example, there may be several different <a href="#point-spreads">point spread</a> matches for a single event.</p>
+<p>The <code>market</code> key indicates the actual bet proposition related to the event. Similar to the structure of the eventId, its exact structure is outside the scope of the smart contract, although participants should arrive at a consensus on its conventions. For instance, in the above example, it specifies <code>team2</code> to win by at least 6.5 points. The <code>rules</code> element is a keccak256 hash of a JSON structure that describes (in free-form) the rules that will be used to grade the event.</p>
+<p>The remainder of the keys are protocol-level fields, described in the <a href="#oracles">oracles section</a>.</p>
+<h3 id="computing-matchids">Computing matchIds</h3>
+<p>All of the information required to compute the matchId is present inside the match details JSON. It is done by computing a hash-tree that encodes various portions of the match details in a way that is accessible to the Degens smart contract:</p>
+<p><img src="merkleMatchId.svg" /></p>
+<ul>
+<li>To compute the matchId, start at the bottom level of the tree. This is simply the match details JSON object. It is normalized and hashed with keccak256 to compute the <strong>detailsHash</strong>.</li>
+<li>Moving to the next level of the tree, compute the keccak256 hash of the concatenation of <strong>detailsHash</strong> (from the previous step), <strong>recoveryTime</strong>, and <strong>cancelPrice</strong>. The last two values are encoded as big-endian <code>uint256</code> values. This hash is called the <strong>witness</strong>.</li>
+<li>Next, compute the keccak256 hash of the concatenation of the <strong>witness</strong> (from the previous step), <strong>graderQuorum</strong>, <strong>graderFee</strong>, and all the addresses in <strong>graders</strong> (in order). <strong>graderQuorum</strong> and <strong>graderFee</strong> are encoded as big-endian <code>uint256</code> values, and each grader address is left-padded with 0 bytes to make 32 bytes. The resulting hash is the <strong>matchId</strong>.</li>
+</ul>
+<p>This somewhat cumbersome method of computing the matchId is so that the smallest amount of information needs to be passed to the contract at each step:</p>
+<ul>
+<li>When creating orders, or executing them on the smart contract, only the <strong>matchId</strong> is required. Before doing so, all participants should download and examine the match details, market rules, and event JSON objects, and compute the matchId themselves using this information. Only if they are satisfied with the contents of the match should they create orders and/or execute other orders on the smart contract. Finally, they should ensure they save copies of these JSON objects.</li>
+<li>After an event has completed and its outcome is known, the specified graders will create signed messages indicating what they believe the final price should be. Once a quorum of graders has agreed on the final price, anybody can submit these signed messages along with the <strong>witness</strong>, <strong>graderQuorum</strong>, <strong>graderFee</strong>, and <strong>graders</strong> addresses. This will finalize the match at the price agreed upon by the graders. Note that the matchId is not passed in when claiming because the smart contract computes this itself.
+<ul>
+<li>After the first participant has finalized the match, subsequent claims can be done with <code>claimFinalized</code> to reduce calldata costs.</li>
+</ul></li>
+<li>In case the graders do not create signed finalization messages for some reason, participants can wait until <strong>recoveryTime</strong>, at which point the contract can be finalized at <strong>cancelPrice</strong>. To do this, anybody can submit the <strong>detailsHash</strong>, <strong>recoveryTime</strong>, <strong>cancelPrice</strong>, <strong>graderQuorum</strong>, <strong>graderFee</strong>, and <strong>graders</strong> addresses. Note that the <strong>witness</strong> and <strong>matchId</strong> fields are not passed in, since the contract computes this itself.</li>
+</ul>
+<h3 id="point-spreads">Point Spreads</h3>
+<p>Depending on the match type, it may have an associated <strong>point spread</strong>. This is a positive or negative number that is added to the final score of <code>team2</code> (the home team) prior to evaluating the outcome of a match. This is done so that even teams with different skill levels can be traded at close to even odds, and also so that ties (&quot;pushes&quot;) cannot occur (because in most sports scores are integers but point spreads have fractional components).</p>
+<h1 id="prices-and-odds">Prices and Odds</h1>
+<p>Understanding pricing and odds is critical to profitably trading on the Degens protocol (and elsewhere). Simultaneously buying and selling at different prices/odds is how market makers earn profit, and accurately assessing the probability of events and comparing those to posted prices (or creating their own prices) is how traders earn profit.</p>
+<p>Using the Degens protocol, anyone can be a market maker, a trader, or both.</p>
+<h2 id="implied-probability">Implied Probability</h2>
+<p>Each match may be valued at an integer <strong>price</strong> from 0 to 1e9 (1,000,000,000, or 1 american billion). This corresponds to the <strong>odds</strong> in traditional sports betting, since it reflects the perceived chances that an outcome will occur, and therefore the amount that a trader will need to risk to earn a given amount.</p>
+<p>When it is finalized, either the outcome will have been found to be true, in which case the contract will be finalized at a price of 1 billion, or it will have been found to be false, in which case it will be finalized at a price of 0. Prior to finalization, market participants can choose to value a contract at prices in the range between 0 and 1 billion.</p>
+<p>This range from 0 to 1 billion is chosen so it is easy to map to probability. To do so, scale the price by dividing it by 1e9.</p>
+<p>Odds in this format are called <strong>implied probability</strong> odds and can easily be converted to <a href="#odds-conversion">more conventional odds representations</a>.</p>
+<p>While 1e9 provides a very large granularity for prices, providers may require prices for orders it accepts to be less granular. For example, they may require that prices are increments of 0.1.</p>
+<h2 id="bid-ask-spread">Bid-Ask Spread</h2>
+<p>The difference between the lowest ask and the highest bid is called the <strong>bid-ask spread</strong>. This spread is unrelated to the point spread discussed previously.</p>
+<p>Because market makers attempt to buy at low prices and sell at high prices, they prefer large bid-ask spreads. Conversely, because they must pay market prices, traders who execute trades prefer small bid-ask spreads.</p>
+<p>In a popular and competitively traded event, the bid-ask spread is typically smaller (&quot;tighter&quot;) than in an unpopular event. This is because market makers tend to compete with each other by offering smaller bid-ask spreads, and also because traders will create orders at slighty better prices than the market makers, hoping to avoid paying the bid-ask spread by selling directly to another trader.</p>
+<p>In a centralized exchange, it is usually impossible to have a negative bid-ask spread (where a bid is at a higher price than an ask) because these overlapping orders would be filled immediately. However, in the Degens protocol, negative bid-ask spreads are possible since order-books are decoupled from execution, and because there may be multiple independent order-books. Negative bid-ask spreads should be uncommon though because they represent opportunities for arbitrage. This is where an opportunistic trader simultaneously buys at the low ask price and sells at the high bid price so as to profit from the difference. The <code>matchOrders</code> function on the Degens contract allows atomic arbitrage, where either both of the trades will execute or neither will.</p>
+<p>As well as negative bid-ask spreads, there can also be bid-ask spreads of zero. In this case there is no opportunity for arbitrage profits and the true bid-ask spread can be thought of as the gas required to execute a trade.</p>
+<h2 id="amount-at-risk">Amount at Risk</h2>
+<p>When creating a trade, participants agree upon an integer price <span class="math inline">\(Price_{trade}\)</span> between 0 and 1e9 (non-inclusive). The amounts they must put at risk to form the trade depend upon this price, and are defined by this formula:</p>
+<p><span class="math display">\[ A_{buyer} = A_{seller} \times \frac{Price_{trade}}{1e9 - Price_{trade}} \]</span></p>
+<p>Or equivalently:</p>
+<p><span class="math display">\[ A_{seller} = A_{buyer} \times \frac{1e9 - Price_{trade}}{Price_{trade}} \]</span></p>
+<p>The total trade amount is simply the sum of the two amounts at risk:</p>
+<p><span class="math display">\[ A_{total} = A_{buyer} + A_{seller} \]</span></p>
+<h2 id="finalization-prices">Finalization Prices</h2>
+<p>When a match has finished, graders will agree on a finalization price <span class="math inline">\(Price_{final}\)</span>. This means the buyer can claim the following amount:</p>
+<p><span class="math display">\[ A_{total} \times \frac{Price_{final}}{1e9} \]</span></p>
+<p>And the seller can claim:</p>
+<p><span class="math display">\[ A_{total} \times \frac{1e9 - Price_{final}}{1e9} \]</span></p>
+<p>Finalization prices are usually either 1e9 or 0. This means that either the buyer or the seller respectively will be able to claim the entire amount, and the other will be able to claim nothing.</p>
+<p>However, in certain rare circumstances a match will have no determinable outcome and will need to be finalized at the <code>cancelPrice</code> specified in the match details. The cancel price should be accounted for in trader models. Typically the cancel price will be <code>50</code>, however a different price may be provided if the initial market value of a contract is anticipated to be materially different. This is especially important for &quot;money-line&quot; matches (matches without point-spreads).</p>
+<h2 id="odds-conversion">Odds Conversion</h2>
+<p>As described in the <a href="#implied-probability">implied probability section</a>, prices can be converted to implied probability by simply dividing them by 1e9. Implied probability has several advantages over other odds representations. However, current sports bettors are familiar with a variety of formats so we will next present some abridged odds conversion tables:</p>
+<h4 id="buy-side">Buy-side</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Implied Probability</th>
+<th align="center">American</th>
+<th align="center">Decimal</th>
+<th align="center">Fractional</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">.10</td>
+<td align="center">+900</td>
+<td align="center">10</td>
+<td align="center">9-1</td>
+</tr>
+<tr class="even">
+<td align="center">.25</td>
+<td align="center">+300</td>
+<td align="center">4</td>
+<td align="center">3-1</td>
+</tr>
+<tr class="odd">
+<td align="center">.33</td>
+<td align="center">+203</td>
+<td align="center">3.03</td>
+<td align="center">~2-1</td>
+</tr>
+<tr class="even">
+<td align="center">.40</td>
+<td align="center">+150</td>
+<td align="center">2.5</td>
+<td align="center">3-2</td>
+</tr>
+<tr class="odd">
+<td align="center">.50</td>
+<td align="center">+/-100</td>
+<td align="center">2</td>
+<td align="center">1-1</td>
+</tr>
+<tr class="even">
+<td align="center">.60</td>
+<td align="center">-150</td>
+<td align="center">1.67</td>
+<td align="center">2-3</td>
+</tr>
+<tr class="odd">
+<td align="center">.66</td>
+<td align="center">-194</td>
+<td align="center">1.52</td>
+<td align="center">~1-2</td>
+</tr>
+<tr class="even">
+<td align="center">.75</td>
+<td align="center">-300</td>
+<td align="center">1.33</td>
+<td align="center">1-3</td>
+</tr>
+<tr class="odd">
+<td align="center">.90</td>
+<td align="center">-900</td>
+<td align="center">1.11</td>
+<td align="center">1-9</td>
+</tr>
+</tbody>
+</table>
+<h4 id="sell-side">Sell-side</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Implied Probability</th>
+<th align="center">American</th>
+<th align="center">Decimal</th>
+<th align="center">Fractional</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">.10</td>
+<td align="center">-900</td>
+<td align="center">1.11</td>
+<td align="center">1-9</td>
+</tr>
+<tr class="even">
+<td align="center">.25</td>
+<td align="center">-300</td>
+<td align="center">1.33</td>
+<td align="center">1-3</td>
+</tr>
+<tr class="odd">
+<td align="center">.33</td>
+<td align="center">-203</td>
+<td align="center">1.52</td>
+<td align="center">~1-2</td>
+</tr>
+<tr class="even">
+<td align="center">.40</td>
+<td align="center">-150</td>
+<td align="center">1.67</td>
+<td align="center">2-3</td>
+</tr>
+<tr class="odd">
+<td align="center">.50</td>
+<td align="center">+/-100</td>
+<td align="center">2</td>
+<td align="center">1-1</td>
+</tr>
+<tr class="even">
+<td align="center">.60</td>
+<td align="center">+150</td>
+<td align="center">2.5</td>
+<td align="center">3-2</td>
+</tr>
+<tr class="odd">
+<td align="center">.66</td>
+<td align="center">+203</td>
+<td align="center">3.03</td>
+<td align="center">~2-1</td>
+</tr>
+<tr class="even">
+<td align="center">.75</td>
+<td align="center">+300</td>
+<td align="center">4</td>
+<td align="center">3-1</td>
+</tr>
+<tr class="odd">
+<td align="center">.90</td>
+<td align="center">+900</td>
+<td align="center">10</td>
+<td align="center">9-1</td>
+</tr>
+</tbody>
+</table>
+<h1 id="off-chain-mechanics">Off-chain Mechanics</h1>
+<p>The Degens protocol uses a hybrid on/off-chain approach. Match details, match finalization prices, and orders are communicated off-chain, but trade settlement occurs on-chain. We refer to this as the &quot;EtherDelta model&quot;.</p>
+<h2 id="orders">Orders</h2>
+<p>An <strong>order</strong> is a signed message that indicates a willingness to bet on a match at a certain price.</p>
+<h3 id="signatures">Signatures</h3>
+<p>Orders are hashed using the EIP712 scheme that gives wallets some information about the structure of the messages they are signing.</p>
+<h4 id="eip712-domain">EIP712 Domain</h4>
+<p>The domain used by the Degens contract is given by the following specification:</p>
+<pre><code>EIP712Domain(string name,string version,address verifyingContract)</code></pre>
+<ul>
+<li>The protocol name is <code>&quot;Degens&quot;</code></li>
+<li>The version is <code>&quot;1.0&quot;</code></li>
+<li>The verifyingContract is the deployed contract address</li>
+</ul>
+<h4 id="eip712-order-schema">EIP712 Order Schema</h4>
+<p>All fields of an order are hashed using the EIP712 algorithm. This hash is what is signed by the order creator.</p>
+<p>The fields are given by the following schema:</p>
+<pre><code>Order(
+    address maker,
+    address taker,
+    address token,
+    uint256 matchId,
+    uint256 amount,
+    uint256 price,
+    uint256 direction,
+    uint256 expiry,
+    uint256 timestamp,
+    uint256 orderGroup
+)</code></pre>
+<ul>
+<li><strong>maker</strong>: The Ethereum address that created and signed this order.</li>
+<li><strong>taker</strong>: An Ethereum address representing the only address that is able to take this order (call <code>trade</code> or <code>matchOrders</code> with it). If this is the null address (20 <code>0</code> bytes), then anyone is allowed to take this order.</li>
+<li><strong>token</strong>: The Ethereum address of the ERC-20 token that this order is denominated in.</li>
+<li><strong>matchId</strong>: The derived identifier for the match being bet on (see <a href="#computing-matchids">Computing matchIds</a>).</li>
+<li><strong>amount</strong>: The maximum amount of <code>token</code> ERC-20 tokens that the order creator authorizes to be filled.</li>
+<li><strong>price</strong>: A number between 1 and 999999999 inclusive, representing the price authorized by the order creator.</li>
+<li><strong>direction</strong>: Either 0 for a sell order, or 1 for a buy order.</li>
+<li><strong>expiry</strong>: Unix timestamp after which the order ceases to be valid.</li>
+<li><strong>timestamp</strong>: Unix timestamp when this order was created. Must be in the past when executed by the contract.</li>
+<li><strong>orderGroup</strong>: A value used to support grouping orders together for batch cancellations, and limiting the total amount at risk, even with separate orders. The simplest approach just generates a new random value for each order, in which case each order will belong to its own orderGroup.</li>
+</ul>
+<h4 id="signature-packing">Signature packing</h4>
+<p>Normally, an Ethereum signature is stored in two 32 byte variables <code>r</code> and <code>s</code>, and another 1 byte variable <code>v</code> (of which effectively only 1 bit is used). For calldata space efficiency, all signatures in the Degens protocol take the bit from <code>v</code> and pack it into the higher order bit of <code>s</code> (which is vanishingly unlikely to ever be non-zero).</p>
+<p>So, in the Degens protocol, signatures are stored in two 32 byte variables <code>r</code> and <code>sv</code>. For more details see <a href="https://github.com/HarryR/solcrypto/blob/master/contracts/ECDSA.sol">here</a> and <a href="https://github.com/HarryR/solcrypto/blob/master/pysolcrypto/ecdsa.py">here</a>.</p>
+<h3 id="order-packing">Order Packing</h3>
+<p>Orders have 3 different ways of being encoded (also known as &quot;packed&quot;). Each of these ways is used in a particular case.</p>
+<h4 id="execution-packed">Execution-packed</h4>
+<p>Execution-packed encoding is the encoding orders must be in when calling the <code>trade</code> or <code>matchOrders</code> function.</p>
+<p>In this encoding, each order fits into 4 <code>uint256</code> values, so is 32 * 4 = 128 bytes long.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">uint256 word</th>
+<th align="left">Description</th>
+<th align="left">Size (bytes)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">0</td>
+<td align="left">maker</td>
+<td align="left">20</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">flags</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">direction</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">expiry</td>
+<td align="left">5</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">timestamp</td>
+<td align="left">5</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="left">amount</td>
+<td align="left">16</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">price</td>
+<td align="left">4</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">orderGroup</td>
+<td align="left">12</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="left">r</td>
+<td align="left">32</td>
+</tr>
+<tr class="even">
+<td align="left">3</td>
+<td align="left">sv</td>
+<td align="left">32</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>matchId</code> and <code>token</code> must be submitted separately from the order. This is because when submitting multiple orders using <code>trade</code> or <code>matchOrders</code>, these values are required to be the same, so submitting them separately for each order would be redundant.</li>
+<li><code>taker</code> is either <code>0x0</code> or the value of <code>msg.sender</code>, depending on bit 1 of <code>flags</code> (see <a href="#flags">flags</a>).</li>
+<li>Words 2 and 3 represent the <a href="#signature-packing">packed</a> signature.</li>
+</ul>
+<h4 id="query-packed">Query-packed</h4>
+<p>Query-packed encoding is used when querying the contract as to the status of orders using the <code>testOrder</code> function. This function is a view, so it cannot modify chain state.</p>
+<p>This encoding is identical to execution-packed except for the last 2 words, which change meaning. Since the order's signature does not depend on chain state and a client can check it manually, there is no need for <code>testOrder</code> to check it and therefore it is not required in this packing. However, matchId and token are not passed separately in <code>testOrder</code>, so they are included instead.</p>
+<p>As with execution-packing, each query-packed order fits into 4 <code>uint256</code> values, so is 32 * 4 = 128 bytes long.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">uint256 word</th>
+<th align="left">Description</th>
+<th align="left">Size (bytes)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2</td>
+<td align="left">matchId</td>
+<td align="left">32</td>
+</tr>
+<tr class="even">
+<td align="left">3</td>
+<td align="left">token address (left padded)</td>
+<td align="left">32</td>
+</tr>
+</tbody>
+</table>
+<h4 id="transport-packed">Transport-packed</h4>
+<p>Transport-packed encoding is used when sending and receiving orders from an orderbook (off-chain). The fields are tightly packed and therefore overlap <code>uint256</code> boundaries (which is fine, since orders are never sent to the contract in this encoding).</p>
+<p>Each transport-packed order is 200 bytes long.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Size (bytes)</th>
+<th align="left">Offset (bytes)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">maker</td>
+<td align="left">20</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left">taker</td>
+<td align="left">20</td>
+<td align="left">20</td>
+</tr>
+<tr class="odd">
+<td align="left">token</td>
+<td align="left">20</td>
+<td align="left">40</td>
+</tr>
+<tr class="even">
+<td align="left">matchId</td>
+<td align="left">32</td>
+<td align="left">60</td>
+</tr>
+<tr class="odd">
+<td align="left">amount</td>
+<td align="left">16</td>
+<td align="left">92</td>
+</tr>
+<tr class="even">
+<td align="left">price</td>
+<td align="left">4</td>
+<td align="left">108</td>
+</tr>
+<tr class="odd">
+<td align="left">direction</td>
+<td align="left">1</td>
+<td align="left">112</td>
+</tr>
+<tr class="even">
+<td align="left">expiry</td>
+<td align="left">5</td>
+<td align="left">113</td>
+</tr>
+<tr class="odd">
+<td align="left">timestamp</td>
+<td align="left">5</td>
+<td align="left">118</td>
+</tr>
+<tr class="even">
+<td align="left">orderGroup</td>
+<td align="left">12</td>
+<td align="left">123</td>
+</tr>
+<tr class="odd">
+<td align="left">flags</td>
+<td align="left">1</td>
+<td align="left">135</td>
+</tr>
+<tr class="even">
+<td align="left">r</td>
+<td align="left">32</td>
+<td align="left">136</td>
+</tr>
+<tr class="odd">
+<td align="left">sv</td>
+<td align="left">32</td>
+<td align="left">168</td>
+</tr>
+</tbody>
+</table>
+<h3 id="flags">Flags</h3>
+<p>The flags field is not strictly part of the order, but represents meta-information about the order which is required for verifying signatures.</p>
+<p>It is 1 byte, and only the following bits are used (in order from least to most significant):</p>
+<ul>
+<li><p><strong>bit 1</strong>: The taker field of this order is non-zero, meaning that only the specified address is allowed to call <code>trade</code> or <code>matchOrders</code> with this order. Because of this, if the bit is set, the <code>taker</code> field is assumed to be <code>msg.sender</code> for the purpose of signature verification. This bit is only needed for execution packed encoding. In query packed encoding it is ignored, and in transport packed encoding it is redundant since <code>taker</code> is included.</p></li>
+<li><p><strong>bit 2</strong>: The signature has been computed using the legacy <code>&quot;\x19Ethereum Signed Message:\n32&quot;</code> prefix. This is to support old wallets that don't support EIP712. These signatures are computed identically to normal ones, except that after computing the order hash using the EIP712 scheme, the legacy prefix is prepended and then hashed, and this is what is signed. This is required in execution and transport packed, but ignored in query packed.</p></li>
+</ul>
+<p>All other bits in the flags byte must be set to 0.</p>
+<h2 id="order-cancellation">Order Cancellation</h2>
+<p>Orders can be cancelled in three ways:</p>
+<ol style="list-style-type: decimal">
+<li>Order expiry (individual orders)</li>
+<li>Timestamp cancellation (bulk orders)</li>
+<li>Order group cancellation (custom set of orders)</li>
+</ol>
+<h4 id="order-expiry">Order expiry</h4>
+<p>Every order has an <code>expiry</code> field. This is a unix timestamp chosen by the order creator. The contract will reject any orders that have an expiry in the past.</p>
+<p>Typically an order creator will set this to some point in time that they believe the odds will remain stable (or go in their favour). This is often kick-off, the end of half-time intermission, etc. However, some market maker bots may create orders with short-term expiration times (ie 15 minutes) to reduce the cost of cancelling and re-creating orders. This strategy is most useful when combined with order groups (see below).</p>
+<h4 id="timestamp-cancellation">Timestamp cancellation</h4>
+<p>Every order has a <code>timestamp</code> field. This is a unix timestamp that is supposed to represent when the order was created, and serves two purposes in the protocol:</p>
+<ol style="list-style-type: decimal">
+<li>The contract will not process trades on orders with a timestamp in the future. This provides a way to publish orders that will only come into effect at a certain time in the future.</li>
+<li>Every address has an entry in the <code>cancelTimestamps</code> mapping in the contract. By calling the <code>cancelAll</code> function, each address can set its cancel timestamp to the current time. Any orders with timestamps earlier than this will be rejected by the contract.</li>
+</ol>
+<h4 id="order-group-cancellation">Order group cancellation</h4>
+<p>As described in the order schema section, every order has an <code>orderGroup</code> field. Because it is typically a random value, this functions similarly to a &quot;nonce&quot; or &quot;salt&quot; value in some protocols in that it provides the following attributes:</p>
+<ul>
+<li>Identical but separate orders (that is, orders on the same match with identical amount, price, etc), can be distinguished from one another.</li>
+<li>Order hashes cannot be predicted before the issuer generates them.</li>
+</ul>
+<p>In addition to the above, order groups provide an extra optional feature: They can be used to batch cancel orders, or to create multiple orders sharing the same liquidity basis. This is because orders in the same order group have the same <a href="#fill-hash">fill hash</a>.</p>
+<h3 id="fill-hash">Fill Hash</h3>
+<p>Many other protocols that support partial fills of orders, such as EtherDelta, 0x, and SportCrypt, use a hash of an order as an identifier and use this to track the portion of the order that has been filled. As a consequence, every new order gets an entirely separate fill amount that starts at 0 (unfilled) and goes up to the order amount (completely filled).</p>
+<p>In the Degens protocol, the order hash and the fill hash are distinct. While the order hash is used for signing, the fill hash is used to track how much of the order has been filled. The fill hash is computed using a subset of the data from the order. Specifically, it is computed as follows (in solidity):</p>
+<pre><code>fillHash = keccak256(abi.encodePacked(o.maker, o.token, o.amount, o.orderGroup))</code></pre>
+<p>So, multiple orders can be issued that all share the same fill hash, but differ in various properties such as matchId, direction, and price. However, these orders must share the same maker, token, amount, and orderGroup.</p>
+<p>This permits the following use-cases:</p>
+<ul>
+<li>A market maker may wish to offer markets on a variety of sports, but limit the total amount of liquidity per-sport. This can be done by choosing an orderGroup when creating a batch of orders for each sport. In this case, the total possible exposure for each sport will be limited.</li>
+<li>When continually creating orders with short expiry times, it is desirable to create a new order before the older order expires, and replace the old order with the new one so that users are less likely to trade on expired orders. However, this could introduce a vulnerability in that there is a period of time where both orders are valid. If a user stores the old order and waits for the new order, he or she could trade on both of them, doubling the desired maximum exposure for the order creator. Using order groups, this can be solved by giving the new order the same order group as the old order. Sophisticated orderbook nodes can also automatically do the replacement of old about-to-expire orders by looking for duplicate fill hashes. Note that this technique can be relied on to replace an order with a better price (for the taker) but not a worse price, since the taker could simply use the original order to get the better price. To remove these orders, a maker must cancel or soft cancel (if applicable, see <a href="#matching">matching</a>).</li>
+</ul>
+<h2 id="maintaining-orderbooks">Maintaining Orderbooks</h2>
+<p>Determining the amount of an order available to be executed depends on many on-chain values. Some of these are inside the contract of the token being used for betting, such as the balance and approval amounts, and some are inside the Degens contract, such as amounts filled, existing positions, cancellations, etc.</p>
+<p>Because tracking all these values and re-implementing the contract logic is complicated and inconsistency of values may be a source of bugs, orderbook nodes may decide to use an ethereum node as the sole &quot;source of truth&quot; about an order's fillable status. This makes sense because it is guaranteed to have a consistent view of data at all times, handles blockchain re-orgs, and saves a lot of implementation effort. Instead of tracking all the data separately, a node just needs to watch the logs and determine which orders it needs to re-poll. In order to handle re-orgs, a node should also track what orders were modified by which blocks, so that it knows which orders need to be re-queried in these cases.</p>
+<p>The Degens smart contract exposes a function called <code>testOrder</code>. This function accepts a single <a href="#query-packed">query packed</a> order, and will return the following:</p>
+<ul>
+<li>The amount of the order that is currently available to be filled, account for balances, allowances, existing positions, cancellations, etc</li>
+<li>The amount that has currently been filled for this order's <a href="#order-group-cancellation">orderGroup</a>, or the maximum <code>uint256</code> value if this orderGroup has been explicitly cancelled.</li>
+</ul>
+<p>Note that <code>testOrder</code> does not verify the signatures of orders since that is independent of chain state and can be done by the node when it first receives the order.</p>
+<h3 id="query-contract">Query Contract</h3>
+<p>Calling <code>testOrder</code> individually for every order that is changed by a block may take a long time due to node latency. To improve upon this, there is a separate contract called <code>QueryDegens</code> available that can query the status of a batch of orders all at once. Similarly, it supports querying balances and approvals for many addresses and many tokens in a single batch.</p>
+<p>The reason that this batch functionality lives in a separate smart contract is so that its functionality can be improved upon later. Since it provides a pure read-only view, a new version of <code>QueryDegens</code> can be deployed with no effect on the main Degens contract.</p>
+<h2 id="provider-strategies">Provider Strategies</h2>
+<p>The Degens protocol, order model, and contract are designed to be flexible in how they are used. Generally, end-users will interact with one or more <strong>providers</strong>, either through their websites or by connecting their own nodes. How this works is independent of the protocol, and is only discussed in this document at an abstract level.</p>
+<p>A provider is typically an exchange, sportsbook, or other liquidity aggregator. The provider strategy terminology is taken from the 0x protocol's <a href="https://0x.org/wiki#Open-Orderbook">relayer strategies documentation</a>, although we don't use the term relayer since providers may not actually relay any orders.</p>
+<p>This section lists the high-level categories of provider strategies, although hybrid models are also possible.</p>
+<p>While some of the strategies involve various levels of centralization, in no cases do users give up custody of their funds or positions.</p>
+<h3 id="open-orderbook">Open Orderbook</h3>
+<p>In this model, a provider accepts signed orders from its users, optionally categorizes, sorts, and curates them, and then transmits them to other interested users. These users can then, at their option, submit them to the Degens smart contract for execution.</p>
+<p>Orders should have the <code>taker</code> field set to 0, since the maker intends to allow anyone to take the order.</p>
+<h4 id="advantages">Advantages</h4>
+<ul>
+<li>This is in some senses the most decentralized strategy, in that trade settlement is done by the blockchain consensus protocol, and the provider doesn't have any control over it.</li>
+<li>Orders can be shared between different orderbooks, potentially even a purely peer-to-peer orderbook network.</li>
+</ul>
+<h4 id="disadvantages">Disadvantages</h4>
+<ul>
+<li>There is a chance of trade collision, where multiple parties attempt to trade on the same order simultaneously. Since settlement is done on-chain, the party whose order is executed first is indeterminate, and depends on things like gas price, network congestion, etc.</li>
+<li>The provider has the ability to censor orders, although a provider who does this will likely be supplanted by one who doesn't since they will have strictly less liquidity (other orderbooks can copy all of its orders)</li>
+<li>The provider has access to new orders before any other participants, although being able to take advantage of this is difficult since the order will be available to anyone as soon as the provider tries to use it in a trade</li>
+<li>Users must pay gas to execute trades</li>
+<li>Cancelling orders prior to their expiration requires paying gas fees</li>
+</ul>
+<h4 id="use-case">Use-case</h4>
+<p>This model is for implementing a betting exchange used by crypto-native users, such as business-minded market makers. To use it effectively, users should understand Ethereum transactions, gas, and blockchain settlement.</p>
+<h3 id="matching">Matching</h3>
+<p>A provider can require the <code>taker</code> field on all orders they accept to be set to an address of their choosing. The contract will then ensure that the provider is the only party capable of executing these transactions. In this way, the provider can control the actual matching of orders by doing it off-chain, and then settle them in sequence on-chain.</p>
+<h4 id="advantages-1">Advantages</h4>
+<ul>
+<li>Trade collisions will no longer occur, since the provider can maintain the fillability status of the orders off-chain and ensure they will never send try to fill an order that has already been filled.</li>
+<li>Users no longer need to pay gas fees, this is the responsibility of the provider.</li>
+<li>&quot;Soft&quot; cancels (where you trust the provider not to fill them) are instantaneous and free</li>
+</ul>
+<h4 id="disadvantages-1">Disadvantages</h4>
+<ul>
+<li>Less decentralized than an open orderbook. Users must trust the provider to fill their orders in a timely fashion.</li>
+<li>Orders submitted to matching providers cannot be shared with other providers, since only the original provider can execute these orders</li>
+</ul>
+<h4 id="use-case-1">Use-case</h4>
+<p>This model allows the creation of a more conventional, user-friendly betting exchange, at the expense of a certain amount of centralization. There is no need for a maker/taker distinction, and users don't have to pay gas.</p>
+<h3 id="quote-provider">Quote Provider</h3>
+<p>A provider can simply list prices and betting limits, without creating any orders. When users want to make bets, they submit signed orders to the provider with the taker field set to an address chosen by the provider. The provider will then fill these orders with <code>trade</code> and/or <code>matchOrders</code>, depending on if they want to assume the position and/or arbitrage it out against other orders.</p>
+<h4 id="advantages-2">Advantages</h4>
+<ul>
+<li>Consistent betting limits on a large variety of events can be offered, without the user having to understand market depth or other attributes of a betting exchange</li>
+<li>Users don't need to worry about paying gas or making orders</li>
+</ul>
+<h4 id="disadvantages-2">Disadvantages</h4>
+<ul>
+<li>Users don't have any guarantee that the provider will execute their orders. Although, if a provider consistently fails to execute orders in a timely fashion, users may choose to go elsewhere.</li>
+</ul>
+<h4 id="use-case-2">Use-case</h4>
+<p>This model is ideal for a retail-level sportsbook. By moving the execution and liquidity responsibility to the provider, users don't need to worry about betting exchange mechanics at all. By using the <code>matchOrder</code> function and external liquidity, these providers can operate at low or zero levels of risk.</p>
+<h3 id="reserve-manager">Reserve Manager</h3>
+<p>Reserve managers are providers who have confidence in their odds and are willing to accept positions, given favourable prices. To use this strategy, reserve managers create and sign either or both buy and sell orders on an event. They then publish these orders to open or matching orderbooks, or entirely separate systems, at their option. Note that there isn't really a hard distinction between a market maker and a reserve manager.</p>
+<p>Orders can be set with short-term expiry values so the manager can update the prices and limits as needed (probably using <a href="#order-group-cancellation">order groups</a>).</p>
+<h4 id="advantages-3">Advantages</h4>
+<ul>
+<li>Sophisticated users who don't mind accepting positions can maximize the chances that other users will purchase positions from them.</li>
+<li>If the taker field is not set, orders can be shared between orderbooks.</li>
+</ul>
+<h4 id="disadvantages-3">Disadvantages</h4>
+<ul>
+<li>Because many participants may wish to trade on these orders, there is a chance of trade collisions. However, typically these orders will be large, which reduces the chance of failed fills.</li>
+</ul>
+<h4 id="use-case-3">Use-case</h4>
+<p>This model is suited for institutional bookmakers who are comfortable with managing portfolios and assuming risk, and don't want to deal with running retail operations.</p>
+<h1 id="on-chain-mechanics">On-Chain Mechanics</h1>
+<p>This section is an outline of the smart contract's core trading mechanics expressed in an idealized mathematical form. The actual implementation is structured slightly differently so as to avoid rounding loss, enable efficient invariant assertions, and to optimize gas usage. This description should not be taken as authoritative; the authoritative description is the smart contract source code.</p>
+<h2 id="trade-logic">Trade Logic</h2>
+<h3 id="positions">Positions</h3>
+<p>Positions are the result of trading, and they maintain the state of which accounts are eligible to collect the reserved funds once contracts have been finalized. Negative values for positions represent short positions, and positive values represent long positions. The positions represent the total amounts to be claimed, not the long or short amounts at risk.</p>
+<h3 id="effective-balances">Effective Balances</h3>
+<p>To create a trade, users normally require sufficient token balance, <span class="math inline">\(Bal_{account}\)</span>, to match their amount at risk. However, if a trade is made for a match the user already has a position on, and the trade is in the opposite direction of the existing position, then the position itself may be used as collateral. In this way, it is always possible to create new trades to close out existing positions.</p>
+<p>Here is how the effective balance is computed for a buyer:</p>
+<p><span class="math display">\[
+Bal_{effective} = Bal_{account} +
+  \begin{cases}
+    -Position \times \frac{Price}{1e9}       &amp; \quad \text{if } Position &lt; 0 \\
+    0                                        &amp; \quad \text{if } Position &gt;= 0
+  \end{cases}
+\]</span></p>
+<p>And for a seller:</p>
+<p><span class="math display">\[
+Bal_{effective} = Bal_{account} +
+  \begin{cases}
+    Position \times \frac{1e9 - Price}{1e9}  &amp; \quad \text{if } Position &gt; 0 \\
+    0                                        &amp; \quad \text{if } Position &lt;= 0
+  \end{cases}
+\]</span></p>
+<p><span class="math inline">\(Bal_{effective}\)</span> is computed for both parties to a trade. These values are then used to determine the amounts that will be used in the trade, along with the remaining order amount, the maximum trade amount, and the order price.</p>
+<h3 id="position-updates">Position Updates</h3>
+<p>When a trade is created, the positions for the participating accounts are updated by adding or substracting the total trade amount, <span class="math inline">\(A_{total}\)</span>, as follows.</p>
+<p>For the account performing the buy side of the trade:</p>
+<p><span class="math display">\[ Position_{new} = Position_{old} + A_{total} \]</span></p>
+<p>And for the account performing the sell side:</p>
+<p><span class="math display">\[ Position_{new} = Position_{old} - A_{total} \]</span></p>
+<p>Since there are opposite positions of equal magnitude created for every trade, prior to finalization all positions on a match net to 0:</p>
+<p><span class="math display">\[ {\textstyle \sum_i} Position(account_{i}) = 0 \]</span></p>
+<p>After finalization this invariant no longer holds because winners will claim their positions and in the process reset them to 0. Participants on the losing side have no reason to pay the gas to set their positions to 0. In other words, pre-finalization positions are always updated symmetrically, but post-finalization they are not.</p>
+<h3 id="balance-updates">Balance Updates</h3>
+<p>As well as updating the positions of the participating accounts, ERC-20 <code>transfer()</code> and <code>transferFrom()</code> calls are issued to modify the participant token balances according to the following formulae.</p>
+<p>For the account performing the buy side of the trade:</p>
+<span class="math display">\[\begin{align*}
+Bal_{new} ={} &amp; Bal_{old} \\
+      &amp; + \left((-Position_{old} + min(0, Position_{new})) \times \frac{1e9 - Price}{1e9}\right) \\
+      &amp; - \left((Position_{new} - max(0, Position_{old})) \times \frac{Price}{1e9}\right)
+\end{align*}\]</span>
+<p>And the sell side:</p>
+<span class="math display">\[\begin{align*}
+Bal_{new} ={} &amp; Bal_{old} \\
+      &amp; + \left((Position_{old} - max(0, Position_{new})) \times \frac{Price}{1e9}\right) \\
+      &amp; - \left((-Position_{new} + min(0, Position_{old})) \times \frac{1e9 - Price}{1e9}\right)
+\end{align*}\]</span>
+<p>The intuition behind these equations is that an account's balance is debited for increasing the magnitude of a position and credited for reducing it. Since a position is being sold or purchased, the debit or credit amount depends on the price agreed upon for the trade.</p>
+<p>If there are no preexisting positions, then both balances are decreased by the corresponding amounts necessary to cover the respective amounts at risk needed for the trade. However, if one or both of the parties have existing positions, and one or both of them are trading in an opposite direction to their positions, then the balances may increase. This is not always the case though since a single trade can close out an existing position (increasing balance) and additionally create an opposite position (decreasing balance).</p>
+<h3 id="order-amount-update">Order Amount Update</h3>
+<p>When a trade is made, the amount associated with the order's <a href="#fill-hash">fill hash</a> is increased according to how much of the order's specified amount was consumed.</p>
+<p>The difference between the filled amount and the order amount is what is used for later trades when determining how much of an order remains.</p>
+<h2 id="trading-and-matching-functions">Trading and matching functions</h2>
+<p>There are two functions in the smart contract for executing orders, <code>trade</code> and <code>matchOrders</code>.</p>
+<h3 id="trade">trade</h3>
+<p>The <code>trade</code> function is for &quot;taking&quot; one or more orders for the same matchId and trading token (but potentially different order creators and prices). The sender of this transaction is called the taker. This used by traders who interact directly with an orderbook and would like to attempt to achieve the best possible pricing, but don't mind creating Ethereum transactions, paying gas, and taking on an amount of execution risk (ie, the possibility that they will spend gas but won't actually create a trade).</p>
+<pre><code>function trade(
+    uint amount,
+    uint expiry,
+    uint matchId,
+    address token,
+    uint[4][] calldata packedOrders
+  )</code></pre>
+<ul>
+<li><code>amount</code> : The maximum amount of the token being bet with that should be put at risk. This can be taken from the taker's token balance, or from a taker's existing opposite position on a match (their <a href="#effective-balances">effective balance</a>).</li>
+<li><code>expiry</code> : The unix timestamp at which this trade should be rejected. This is different from order expiry, and allows a taker to set an upper bound on how long this trade can be waiting to be mined before it will expire. If it is mined after this expiration date, the transaction will still succeed, but no trades will be created and a minimal amount of gas will be consumed. If this is 0, then the trade will not expire.</li>
+<li><code>matchId</code> : The matchId of the match being traded on.</li>
+<li><code>token</code> : The address of the token being used to bet with.</li>
+<li><code>packedOrders</code> : A variable-length array of the orders to be traded against, in <a href="#execution-packed">execution-packed encoding</a>. These orders must all have the same values for <code>matchId</code> and <code>token</code> as is passed in to <code>trade</code>.</li>
+</ul>
+<h3 id="matchorders">matchOrders</h3>
+<p>The <code>matchOrders</code> function is primarily for performing atomic arbitrage. That is, two or more trades that are guaranteed to either both succeed or both fail. This is used when the prices of orders overlap (the bid is higher than the ask), allowing a risk-free profit to be earned.</p>
+<p>While this can be used by participants to remove inefficiencies from an open orderbook, it can also be used to implement various other types of providers. See the <a href="#provider-strategies">provider strategies</a> section for more details.</p>
+<pre><code>function matchOrders(
+    uint matchId,
+    address token,
+    uint[4] calldata packedLeftOrder,
+    uint[4][] calldata packedRightOrders
+  )</code></pre>
+<ul>
+<li><code>matchId</code> : The matchId of the match being traded on.</li>
+<li><code>token</code> : The address of the token being used to bet with.</li>
+<li><code>packedLeftOrder</code> : An <a href="#execution-packed">execution-packed</a> order representing the &quot;left&quot; side of the trade. &quot;Left&quot; is merely a disambiguation term and doesn't represent anything meaningful, except that it comes first in the function and is therefore textually on the left. This can be a buy or a sell order, but its <code>matchId</code> and <code>token</code> must match what is passed in to <code>matchOrders</code>.</li>
+<li><code>packedRightOrders</code> : An array of <a href="#execution-packed">execution-packed</a> orders that should be matched against the <code>packedLeftOrder</code>. They all must have the opposite direction from <code>packedLeftOrder</code>, but share <code>matchId</code> and <code>token</code>. The orders must not have the same maker as the left order (because matchOrders assumes that the first matching trade will not change the effective balance used in the other matched trade).</li>
+</ul>
+<p>Although similar to calling <code>trade</code> with two orders, <code>matchOrders</code> has certain advantages. For one, you don't need any capital to call <code>matchOrders</code> because the trades are made simultaneously. With <code>trade</code> you need enough capital to execute one of the trades initially, before selling it off with the second trade. Secondly, <code>matchOrders</code> will calculate the trade sizes required at execution time, whereas <code>trade</code> requires them to be specified up-front, which may be unreliable if the blockchain state changes in between creating your transaction and when your transaction is mined. But note this second advantage could also be solved by using a separate calculation smart contract.</p>
+<p>Some notes regarding <code>matchOrders</code>:</p>
+<ul>
+<li>Although typically calling <code>matchOrders</code> will be profitable for the caller, this is not necessarily the case. If the <a href="#bid-ask-spread">bid-ask spread</a> between left and right orders is non-negative, then the match will be subsidized by funds from <code>msg.sender</code>. While calling <code>matchOrders</code> with such orders does not make sense if your goal is arbitrage profits, it may be useful for a provider who mostly hedges positions at a profit, but who doesn't mind subsidizing a portion of a bet to improve user experience.</li>
+<li>When calling <code>matchOrders</code>, in theory the caller's position on a match should be unaffected. Because it buys a position with one order, and sells off that entire position to another order, only the balance is affected (usually it is increased, but see previous point). However, in some cases the caller will be left with a <em>residual position</em> on the match. This can happen because price granularity is limited to 1e-9, which means that the exact same position may not be purchasable by both trades. Typically this residual position is only a few wei, but at extreme prices may be as high as 1e9, which is still insignificant for typical tokens such as WETH and DAI. The worst effect of residual positions is actually the increased gas cost. If a position is set back to 0, then a modest gas refund is applied, but having a residual position prevents this refund.</li>
+</ul>
+<h2 id="event-logs">Event Logs</h2>
+<p>The contract emits events (solidity-style logs) in most situations.</p>
+<ul>
+<li>In a successful <code>trade</code> or <code>matchOrders</code> function call it will emit either a <code>LogTrade</code> or a <code>LogTradeError</code> for each one of the <code>packedOrders</code> or <code>packedRightOrders</code>, up until <code>amount</code> or the <code>leftOrder</code> fillable amount is exhausted.</li>
+<li>In a successful <code>claim</code>, <code>LogFinalizeMatch</code> will be emitted if the match was not previously finalized. Every account address in the <a href="#claim-targets">claim targets</a> that has a winning position will have an associated <code>LogClaim</code> emitted. <code>claimFinalized</code> is the same, except it never emits <code>LogFinalizeMatch</code>.</li>
+<li>Successful <code>cancel</code> and <code>cancelAll</code> function calls will emit <code>LogCancel</code> or <code>LogCancelAll</code> events respectively</li>
+</ul>
+<table style="width:81%;">
+<colgroup>
+<col width="9%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Event name</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">LogTrade</td>
+<td align="left">A successful trade. ERC-20 transfers have been performed, positions and fill amounts updated.</td>
+</tr>
+<tr class="even">
+<td align="left">LogTradeError</td>
+<td align="left">A trade failed. The <code>status</code> field will indicate the reason (see <a href="#trade-status">Trade status</a> for how to decode it)</td>
+</tr>
+<tr class="odd">
+<td align="left">LogClaim</td>
+<td align="left">A claim has successfully been issued for a given <code>account</code></td>
+</tr>
+<tr class="even">
+<td align="left">LogCancel</td>
+<td align="left">An <a href="#order-group-cancellation">order group</a> has been cancelled, cancelling one or more orders. Note that this logs all the fields required to compute the <a href="#fill-hash">fill hash</a></td>
+</tr>
+<tr class="odd">
+<td align="left">LogCancelAll</td>
+<td align="left">A bulk <a href="#timestamp-cancellation">timestamp cancellation</a> was issued for an <code>account</code></td>
+</tr>
+<tr class="even">
+<td align="left">LogFinalizeMatch</td>
+<td align="left">A match was finalized, allowing users to <a href="#claim">claim</a> their positions</td>
+</tr>
+</tbody>
+</table>
+<h2 id="trade-status">Trade Status</h2>
+<p>The <code>status</code> field of <code>LogTradeError</code> indicates why a trade failed. It will be one of the following enum values (except <code>INVALID</code> or <code>OK</code>). <code>LogTrade</code> does not include a <code>status</code> field since the status is always <code>OK</code>.</p>
+<table style="width:97%;">
+<colgroup>
+<col width="9%" />
+<col width="70%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Status</th>
+<th align="left">Description</th>
+<th align="left">Classification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">INVALID</td>
+<td align="left">An invalid trade status: This should only ever exist in a trade while it is being processed, so it should never appear in logs. This status is represented by <code>0</code>, so un-initialized <code>Trade</code> structs will have an invalid status.</td>
+<td align="left">N/A</td>
+</tr>
+<tr class="even">
+<td align="left">OK</td>
+<td align="left">The trade succeeded, and fund have been transferred and positions updated. This is the only status where changes to the contract's storage or ERC-20 transfers have been performed.</td>
+<td align="left">Success</td>
+</tr>
+<tr class="odd">
+<td align="left">TAKER_NO_BALANCE</td>
+<td align="left">The taker has insufficient effective balance</td>
+<td align="left">Fail: taker state</td>
+</tr>
+<tr class="even">
+<td align="left">TRADE_EXPIRED</td>
+<td align="left">The taker set a trade expiration time, and the trade was mined after that</td>
+<td align="left">Fail: time</td>
+</tr>
+<tr class="odd">
+<td align="left">MATCH_FINALIZED</td>
+<td align="left">The match has been finalized, so no further trades are possible on this match</td>
+<td align="left">Fail: match state</td>
+</tr>
+<tr class="even">
+<td align="left">TRADE_TOO_SMALL</td>
+<td align="left">The trade's amount would be too small, usually caused by dust balances and extreme order prices</td>
+<td align="left">Fail: taker or maker state</td>
+</tr>
+<tr class="odd">
+<td align="left">ORDER_NO_BALANCE</td>
+<td align="left">The maker has insufficient effective balance</td>
+<td align="left">Fail: maker state</td>
+</tr>
+<tr class="even">
+<td align="left">ORDER_EXPIRED</td>
+<td align="left">The order's expiration timestamp has elapsed</td>
+<td align="left">Fail: time</td>
+</tr>
+<tr class="odd">
+<td align="left">ORDER_FUTURE_TIMESTAMP</td>
+<td align="left">The order's timestamp has not yet elapsed</td>
+<td align="left">Fail: time</td>
+</tr>
+<tr class="even">
+<td align="left">ORDER_CANCELLED</td>
+<td align="left">The order was explicitly cancelled by the maker (either by cancelling its orderGroup, or bulk cancelling by timestamp)</td>
+<td align="left">Fail: maker state</td>
+</tr>
+<tr class="odd">
+<td align="left">ORDER_BAD_SIG</td>
+<td align="left">The provided signature for the order does not match the maker address</td>
+<td align="left">Fail: malformed</td>
+</tr>
+<tr class="even">
+<td align="left">INCORRECT_TAKER</td>
+<td align="left">The order had a <code>taker</code> field specified, and the <code>msg.sender</code> that attempted to make the trade does not match. In practice it is impossible to get this value since according to <a href="#execution-packed">execution packed</a> encoding, <code>msg.sender</code> is assumed to be taker, and if it wasn't get an <code>ORDER_BAD_SIG</code> instead</td>
+<td align="left">Fail: malformed</td>
+</tr>
+<tr class="odd">
+<td align="left">AMOUNT_MALFORMED</td>
+<td align="left">The amount specified in the trade exceeds <span class="math inline">\(2^{128} - 1\)</span>. Note that orders cannot specify amounts larger than this because they won't fit into the <a href="#execution-packed">execution packed</a> encoding</td>
+<td align="left">Fail: malformed</td>
+</tr>
+<tr class="even">
+<td align="left">SELF_TRADE</td>
+<td align="left">The taker and maker are the same address, which is disallowed</td>
+<td align="left">Fail: malformed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="contract-errors">Contract Errors</h2>
+<p>The Degens contract can throw various errors during operation. These errors are distinct from the trade errors signified by <a href="#trade-status">trade status</a>, in that they abort the entire transaction. Usually these errors are a result of malformed input to the contract.</p>
+<p>All errors created by the degens contract are prefixed with <code>DERR_</code> to disambiguate them from errors from other contracts, in the case of a token contract throwing an error (which the Degens contract will not handle, and will abort the entire transaction), or when calling the Degens contract from another contract using an &quot;internal transaction&quot;.</p>
+<table style="width:81%;">
+<colgroup>
+<col width="9%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Error</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>DERR_UNKNOWN_METHOD</code></td>
+<td align="left">Unknown function on the contract was called. This happens when you try to send a simple ether transfer to the contract, for example.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_INVALID_ORDER_SIGNATURE</code></td>
+<td align="left">The signature provided with an order does not match the <code>maker</code> address' signature.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_INVALID_TAKER</code></td>
+<td align="left">This order can only be invoked by a certain <code>taker</code>, and <code>msg.sender</code> is not this taker. NOTE: This error cannot actually be thrown, since <a href="#execution-packed">execution packed</a> encoding does not explicitly include <code>taker</code>. You will generally instead see <code>DERR_INVALID_ORDER_SIGNATURE</code>.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_INVALID_PRICE</code></td>
+<td align="left">An order's price was not in the correct range (between 0 and 1e9, not inclusive)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_INVALID_DIRECTION</code></td>
+<td align="left">An order's direction was not valid (must be either 0 or 1)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_EMPTY_PACKEDORDERS</code></td>
+<td align="left">A malformed <code>trade</code> invocation: The <code>packedOrders</code> parameter was empty</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_EMPTY_PACKEDRIGHTORDERS</code></td>
+<td align="left">A malformed <code>matchOrders</code> invocation: The <code>packedRightOrders</code> array was empty</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_SAME_MAKER</code></td>
+<td align="left">A malformed <code>matchOrders</code> invocation: Cannot match two orders with the same <code>maker</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_SAME_DIRECTION</code></td>
+<td align="left">A malformed <code>matchOrders</code> invocation: Cannot match two orders with the same direction (one must be a buy and the other a sell)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_LEFT_TRADE_FAIL</code></td>
+<td align="left">During <code>matchOrders</code>, the left trade failed. Because the right trade is done first, if the left trade subsequently failed, the entire transaction must be aborted to undo the effects of the right trade.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_BAD_ORDERGROUP</code></td>
+<td align="left">When calling <code>cancel</code>, an invalid orderGroup was provided (it must fit in 12 bytes)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_BAD_FINALPRICE</code></td>
+<td align="left">In <code>claim</code>, the final price signed by the graders was not in the correct range (between 0 and 1e9, inclusive)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_ZERO_GRADER_QUORUM</code></td>
+<td align="left">Malformed match: A grader quorum of 0 was specified, which is not allowed.</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_INVALID_NUM_SIGS</code></td>
+<td align="left">In <code>claim</code>, the number of signatures provided by the graders does not match the number of graders.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_INVALID_GRADERFEE</code></td>
+<td align="left">In <code>claim</code>, the provided grader fee was not in the correct range (between 0 and 1e9, inclusive)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_BAD_GRADER_SIG</code></td>
+<td align="left">In <code>claim</code>, one of the provieded signatures does not match the corresponding grader address' signature</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_INSUFFICIENT_GRADERS</code></td>
+<td align="left">In <code>claim</code>, not enough grader signatures were provided to meet the quorum</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_MATCH_NOT_FINALIZED</code></td>
+<td align="left"><code>claimFinalized</code> was invoked on a match that has not yet been finalized</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_MATCH_IS_FINALIZED</code></td>
+<td align="left"><code>recoverFunds</code> was invoked on a match that has already been finalized</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_TOO_SOON_TO_RECOVER</code></td>
+<td align="left"><code>recoverFunds</code> was invoked before the <code>recoveryTime</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_INVALID_CANCELPRICE</code></td>
+<td align="left">In <code>recoverFunds</code>, the provided <code>cancelPrice</code> was not in the correct range (0 to 1e9, inclusive)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_TOKEN_TRANSFER_FAIL</code></td>
+<td align="left">A <code>transfer()</code> call to a token failed by returning false</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DERR_TOKEN_TRANSFERFROM_FAIL</code></td>
+<td align="left">A <code>transferFrom()</code> call to a token failed by returning false</td>
+</tr>
+<tr class="even">
+<td align="left"><code>DERR_BALANCE_INSANE</code></td>
+<td align="left">A user's token balance exceeded the max sane amount (must fit in 16 bytes)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rounding-behaviour">Rounding Behaviour</h2>
+<p>The contract is designed to be wei-exact except in one case (described below).</p>
+<p>After determining the amounts at risk for each party to a new trade, the contract verifies that the following invariants hold:</p>
+<ol style="list-style-type: decimal">
+<li>After adjusting positions, the sum of all the positions on a match must be 0.</li>
+<li>The net of the change in balances must be the negative of the change in exposure for the match.</li>
+</ol>
+<p>The exposure is the amount that will be claimable when the match finalizes. Due to invariant 1, this can be calculated as the sum of all positive positions on the match.</p>
+<p>If invariant 2 does not hold because it is off-by-one, then rounding has occurred when calculating the balance deltas. If the exposure is one more than it should be, then the position delta is reduced by 1. If the exposure is one less than it should be, the extra wei is arbitrarily added to the balance of the party creating the long-side of the trade. In any other case, an assertion is triggered.</p>
+<p>After applying this rounding compensation, the invariants are rechecked, and an assert is triggered if they still aren't satisfied.</p>
+<p>In our test-suite, these invariants are checked after every operation using a white-box view into the contract. As well as carefully chosen test values, we also have an amount fuzzer that exercises these invariant checks.</p>
+<p>When a match is finalized at 0 or 1e9, then the winning positions will be transferred to the winners' balances, and the losing positions will (if ever claimed) be 0, so will not affect balances.</p>
+<p>As mentioned above, there is one case where wei can be lost to the contract as dust. If a match is finalized at a finalization price other than 0 or 1e9, then any claimed amount will be rounded down to the nearest wei. This is necessary because positions can be divided up and sold to any number of participants.</p>
+<h2 id="contract-interactions">Contract Interactions</h2>
+<p>The Degens contract does not interact with any other contracts or libraries, except for the contracts of the tokens used for betting, for example WETH and DAI. It is up to the providers and users which token contracts they would like to support. Typically these contracts would be widely-used and well audited, as is the case with the WETH and DAI contracts.</p>
+<p>The following are the interaction points where the Degens contract calls a token contract:</p>
+<ul>
+<li>In the <code>lookupBalance</code> function, the ERC-20 functions <code>balanceOf</code> and <code>allowance</code> are called. However, these are invoked with the <a href="https://eips.ethereum.org/EIPS/eip-214">staticcall</a> op-code, so even a malicious contract cannot do anything harmful.</li>
+<li>In the <code>adjustBalance</code> function, the ERC-20 functions <code>transfer</code> and <code>transferFrom</code> are called, depending on whether the contract is crediting or debiting an account, respectively.</li>
+</ul>
+<h3 id="re-entranct-token-contracts">Re-entranct Token Contracts</h3>
+<p>A malicious token contract can re-enter the Degens contract from within its <code>transfer</code> or <code>transferFrom</code> functions.</p>
+<p>We have considered using a re-entrancy guard to protect against this but have decided it is not worth the added gas cost at this time. If <a href="http://eips.ethereum.org/EIPS/eip-1283">EIP-1283</a> or similar is implemented, we will re-evaluate that decision for future versions of the contract.</p>
+<p>We feel the risk from this attack is minimal, because:</p>
+<ul>
+<li>Token contracts are typically trusted by the users who are trading with them</li>
+<li>A malicious token contract could only attempt to steal its own tokens because token effects are isolated within a transaction (except for in <code>claim</code>/<code>claimFinalized</code>, where it is careful to reduce the position before performing the <code>transfer</code>)</li>
+<li>Most possible attacks, in particular the ones that would attempt to double-spend tokens to acquire two different positions, would fail while unwinding the call stack</li>
+</ul>
+<p>Entirely implementing the Checks-Effects-Interactions pattern is not possible with the current architecture because <code>trade</code> and <code>matchOrders</code> both accept arrays of orders to process and these orders are processed (including issuing transfers) within a loop.</p>
+<p>Similarly, tokens that <a href="https://medium.com/coinmonks/missing-return-value-bug-at-least-130-tokens-affected-d67bf08521ca">don't comply with the ERC-20 specification</a> may not work with Degens, and we don't feel it is worth doing anything special to support them.</p>
+<h1 id="oracles">Oracles</h1>
+<p>An oracle is an entity charged with providing information to the blockchain. Sometimes these entities are also called &quot;graders&quot; or &quot;reporters&quot;. The Degens contract doesn't itself designate any addresses as oracles. Instead, when creating a match, multiple oracle addresses can be specified by the match creator. These addresses are accessible to the smart contract because they are encoded in the hash tree that results in the matchId. See <a href="#computing-matchids">Computing matchIds</a> for details on how this works.</p>
+<p>The matchId encoding permits a multi-sig arrangement for oracles. For example, a match could require at least 2 of 3 oracles to agree on a finalization price. Providers should ensure they only offer matches that designate oracles that they trust to offer reliable service for their users. Ideally, oracles should be independently operated to reduce the possibility of collusion.</p>
+<p>Because the oracle's reporting record is permanently embedded onto the blockchain, users have indisputable evidence of any mis-reported matches. This is important because it may provide evidence when attempt to recover an oracle's <a href="#oracle-bonding">bond</a>.</p>
+<p>Additionally, there is no way for an oracle to report different outcomes to different users: A mis-reported finalization price will affect every participant of the match. This is important because as the number of participants on a match increases, it makes it less likely that an incorrect report would go unnoticed.</p>
+<h2 id="claim">Claim</h2>
+<p>After a match has been finalized, funds can be claimed by participants. There are two methods to do this, <code>claim</code> and <code>claimFinalized</code>. Participants calling <code>claim</code> must provide a quorum of valid grader signatures in order to finalize the match, and an array of <a href="#claim-targets">claim targets</a> (which can be empty). If another transaction has already passed in the grader signatures, users claiming funds can save on calldata costs by calling <code>claimFinalized</code> instead of <code>claim</code>.</p>
+<h3 id="grader-signatures">Grader Signatures</h3>
+<p>A grader signature is a signature of the concatenation of the address of the Degens contract, the matchId being graded, and the final price. These signatures can only be created by the addresses specified in the match JSON, and this is validated by <code>claim</code> using the process described in <a href="#computing-matchids">computing matchIds</a>.</p>
+<p>In the <code>claim</code> method, an array of <a href="#signature-packing">packed signatures</a> must be passed in. This array of signatures must be the same length as the number of graders specified in the match JSON. Because not all oracles need to report, if a signature is missing for a particular grader, it should be passed in as all 0s, in which case the signature will be skipped. After verifying all signatures (except all-zeros), the contract will ensure that at least <code>graderQuorum</code> signatures have been verified.</p>
+<h3 id="claim-targets">Claim Targets</h3>
+<p>Both <code>claim</code> and <code>claimFinalized</code> require a array of <code>uint256</code> <strong>claim targets</strong>. This is a list of addresses, left-padded with 0 bytes. Since the contract supports betting in different tokens, the addresses for tokens being claimed need to be provided in addition to the addresses of participants making the claims.</p>
+<p>The claim targets array is processed from start to finish. If a <code>uint256</code> with the most significant bit is set, it is considered a token address, and all the following addresses are considered patricipant addresses, up until the next <code>uint256</code> with a most-significant bit set.</p>
+<p>This allows a user to claim winnings on a match denominated in several tokens in one call. Similarly, a betting provider could issue claims on behalf of its users, with multiple addresses having their winnings claimed in a single transaction.</p>
+<p><img src="claimTargets.svg" /></p>
+<p>For example, in the above figure we are issuing 3 separate claims:</p>
+<ul>
+<li>player1 denominated in DAI</li>
+<li>player2 denominated in DAI</li>
+<li>player1 denominated in WETH</li>
+</ul>
+<h2 id="oracle-bonding">Oracle Bonding</h2>
+<p>Providers may require oracles to put up a bond prior to permitting their matches to be offered on their platforms. In the event of an oracle reporting the outcome of a match incorrectly, affected users will have the option of appealing to a third-party arbiter for compensation. If the claim is deemed valid, and participants and the oracle can't come to a settlement, then the bond may be paid out to the claimant as compensation.</p>
+<p>Because this is not directly part of the Degens protocol, its details aren't further discussed in this documentation. One option for third party arbitration is the <a href="https://kleros.io/">Kleros Blockchain Dispute Resolution Layer</a>.</p>
+<h2 id="oracle-fees">Oracle Fees</h2>
+<p>Because oracles incur a reputational risk (and financial risk, if bonded) every time they sign a finalization message, oracles deserve to be compensated. The Degens protocol allows oracles to earn a percentage of the total claimed amount. This percentage is specified in the match details, and providers should ensure that this fee is reasonable for their users prior to permitting it to be propagated on their platforms.</p>
+<p>The fee is applied against the total amount to be claimed. This has the disadvantage that the fee, as expressed as a percentage of winnings, will change depending on the prices of the trade. However, it has the advantage that any number of trades can be made on a match without paying fees. For instance, a market maker who entirely nets out a position on a match will not end up paying any fees.</p>
+<p>Charging the fees as a percentage of claimable amount at finalization time compensates the oracle fairly because they are assuming risk proprtional to the outstanding positions at finalization time. If users trade away their positions prior to finalization, this reduces the amount of risk the oracle assumes, so the fee should be less.</p>
+<h2 id="oracle-competition">Oracle Competition</h2>
+<p>Since oracles are specified as an M-of-N multi-sig by the match creator, not all oracles need to report a result for a match in order for it to be finalized. The oracles that report will evenly split the fee. For example, 2 of 3 oracles may be required, in which case a match may be finalized with only 2, and each will take 50% of the grading fee. Although when calling <code>claim</code>, a participant <em>could</em> pass in all 3, this provides no benefit to the user, and increases gas costs.</p>
+<p>Because of this, oracles have an incentive to quickly create signed grading messages.</p>
+<h2 id="funds-recovery">Funds Recovery</h2>
+<p>In the event that a sufficient number of oracles don't provide a result, after waiting a period of time the match can be finalized by anyone at the <code>cancelPrice</code> so that positions can be recovered.</p>
+<p>As described in the <a href="#computing-matchids">Computing matchIds</a>, the Degens smart contract can access the <code>recoveryTime</code> and <code>cancelPrice</code> parameters by reconstructing the matchId's hash tree. Given these parameters the <code>recoverFunds</code> method can be invoked. If the current time has passed <code>recoveryTime</code>, then the contract will be finalized at <code>cancelPrice</code>, often 0.50.</p>
+<p>For this reason, every participant on a match should verify that the <code>recoveryTime</code> and <code>cancelPrice</code> are fairly set. The <code>recoveryTime</code> should be in the future, so nobody can prematurely invoke <code>recoveryTime</code>, but not too far in the future that funds will be locked for a long time. Similarly, every trader should keep a copy of the match details JSON, because this contains the information required to invoke <code>recoverFunds</code>.</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>We believe all the pieces are finally in place for a decentralized prediction market for sporting events:</p>
+<ul>
+<li>Companies like BetFair have proven the viability of betting platforms modeled on financial exchanges.</li>
+<li>Bitcoin has spread the notion of a blockchain as a trustless, world-wide, unstoppable currency.</li>
+<li>Ethereum has implemented a blockchain implementation that allows the distribution of funds according to custom rules.</li>
+</ul>
+<p>The Degens protocol is a building block that we believe will result in the culmination of these ideas.</p>
+<h1 id="document-history">Document History</h1>
+<ul>
+<li>v0.1 (Jul 1, 2019)
+<ul>
+<li>Initial release</li>
+</ul></li>
+</ul>
+<h2 id="sportcrypt-whitepaper">SportCrypt Whitepaper</h2>
+<p>Since the Degens protocol has its roots in the SportCrypt project, much of this documentation was adapted from its whitepaper.</p>
+<ul>
+<li>v0.4 (Sep 7, 2018)
+<ul>
+<li>Added this history section</li>
+</ul></li>
+<li>v0.3 (Dec 5, 2017)
+<ul>
+<li>Copy edits</li>
+</ul></li>
+<li>v0.2 (Nov 9, 2017)
+<ul>
+<li>Add section on bid-ask spreads</li>
+<li>Minor equation fixes</li>
+</ul></li>
+<li>v0.1 (Oct 30, 2017)
+<ul>
+<li>First version of SportCrypt whitepaper</li>
+</ul></li>
+</ul></div>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+
+<script>
+tocbot.init({
+  // Where to render the table of contents.
+  tocSelector: '#toc',
+  // Where to grab the headings to build the table of contents.
+  contentSelector: '#main-content',
+  // Which headings to grab inside of the contentSelector element.
+  headingSelector: 'h1, h2, h3, h4',
+});
+</script>
+
+
+</body>
+</html>
