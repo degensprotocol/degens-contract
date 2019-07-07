@@ -3,16 +3,16 @@ SOLC ?= solc
 
 ## Build and test
 
-.PHONY: all clean test run_tests fuzz
+.PHONY: all clean test run_tests fuzz check_node_modules
 
-all: build/degensContractLib.js build/Degens.json build/TestToken.json build/QueryDegens.json
+all: build/Degens.json build/TestToken.json build/QueryDegens.json
 
 clean:
 	rm -rf build/ artifacts/ contracts-temp-build/ coverage/ .node-xmlhttprequest*
 
 test: all check_requires run_tests
 
-run_tests:
+run_tests: check_node_modules
 	set -e ; for file in `ls -1 t/*.js | sort`; do echo "------- TEST:" $$file "-------"; node $$file; done
 	@echo
 	@echo ALL TESTS PASSED.
@@ -38,11 +38,6 @@ build/QueryDegens.json: contracts/QueryDegens.sol
 	mkdir -p build/
 	$(SOLC) --optimize --combined-json abi,bin contracts/QueryDegens.sol > build/QueryDegens.json.tmp
 	mv build/QueryDegens.json.tmp build/QueryDegens.json
-
-build/degensContractLib.js: check_node_modules jslib/degensContractLib.js
-	mkdir -p build/
-	./node_modules/.bin/babel jslib/degensContractLib.js --plugins=@babel/transform-modules-commonjs --out-file build/degensContractLib.js
-
 
 ## Coverage
 

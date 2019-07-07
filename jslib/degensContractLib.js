@@ -23,13 +23,13 @@ const tradeStatusLookupByNumber = [
 
 let tradeStatusLookupByName;
 
-export function tradeStatusByNumber(n) {
+function tradeStatusByNumber(n) {
     let name = tradeStatusLookupByNumber[n];
     if (name === undefined) throw(`Unknown trade status number: ${n}`);
     return name;
 }
 
-export function tradeStatusByName(n) {
+function tradeStatusByName(n) {
     if (!tradeStatusLookupByName) {
         tradeStatusLookupByName = {};
         for (i=0; i<tradeStatusLookupByNumber.length; i++) {
@@ -63,7 +63,7 @@ const orderSchema = [
     { name: "orderGroup", type: "uint256" },
 ];
 
-export class Order {
+class Order {
     constructor(obj) {
         this.fields = {
             maker: hexNormalize(obj.maker, 20),
@@ -270,13 +270,13 @@ export class Order {
 
 
 
-export function hexNormalize(inp, numBytes) {
+function hexNormalize(inp, numBytes) {
     inp = ethers.utils.hexZeroPad(ethers.utils.hexlify(inp), numBytes);
     if (inp.length !== (numBytes*2)+2) throw(`input ${inp} exceeds ${numBytes} bytes`);
     return inp.toLowerCase();
 }
 
-export function hexTruncate(inp, numBytes) {
+function hexTruncate(inp, numBytes) {
     if (!inp.startsWith('0x')) throw(`input didn't start with 0x: ${inp}`);
     inp = inp.substr(2);
     return '0x' + inp.substr(inp.length-(numBytes*2));
@@ -291,3 +291,11 @@ function packSignature(sig) {
     if (sig.v === 28) msb |= 128;
     return [sig.r, hexNormalize(msb, 1) + sig.s.substr(4)];
 }
+
+module.exports = {
+  tradeStatusByNumber,
+  tradeStatusByName,
+  Order,
+  hexNormalize,
+  hexTruncate,
+};

@@ -5,7 +5,7 @@ const ganacheCli = require('ganache-cli');
 const child_process = require('child_process');
 const waitforsocket = require('waitforsocket');
 
-const degensContractLib = require('../../build/degensContractLib');
+const degensContractLib = require('../../jslib/degensContractLib');
 
 
 let degensAbi, degensBin, testTokenAbi, testTokenBin;

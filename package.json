@@ -3,10 +3,5 @@
     "ethers": "^4.0.7",
     "ganache-cli": "^6.4.3",
     "waitforsocket": "^0.1.1"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.2.0",
-    "@babel/plugin-transform-modules-commonjs": "^7.2.0"
   }
 }
