@@ -5,7 +5,7 @@ const ganacheCli = require('ganache-cli');
 const child_process = require('child_process');
 const waitforsocket = require('waitforsocket');
 
-const degensContractLib = require('../../jslib/degensContractLib');
+const DegensContractLib = require('../../jslib/DegensContractLib');
 
 
 let degensAbi, degensBin, testTokenAbi, testTokenBin;
@@ -339,7 +339,7 @@ async function doTest(spec, numTest, totalTests) {
 
                     if (expect[i][0] === 'LogTradeError') {
                         let expectedStatus = expect[i][1];
-                        let actualStatus = degensContractLib.tradeStatusByNumber(events[i].args.status);
+                        let actualStatus = DegensContractLib.tradeStatusByNumber(events[i].args.status);
                         if (expectedStatus !== actualStatus) throw(`unexpected LogTradeError reason: ${actualStatus}, expected ${expectedStatus}`);
                     }
                 } else {
@@ -412,12 +412,12 @@ async function doTest(spec, numTest, totalTests) {
                 direction: action.dir === 'invalid' ? 2 : action.dir === 'buy' ? 1 : 0,
                 expiry: Math.floor(startTime / 1000) + (action.expiryOffset === undefined ? 86400 : action.expiryOffset),
                 timestamp: Math.floor(startTime / 1000) + (action.timestampOffset === undefined ? -1 : action.timestampOffset),
-                orderGroup: action.orderGroup || degensContractLib.hexTruncate(deterministicRandom(), 12), // ethers.utils.randomBytes()
+                orderGroup: action.orderGroup || DegensContractLib.hexTruncate(deterministicRandom(), 12), // ethers.utils.randomBytes()
             };
 
             if (action.modOrderArgs) action.modOrderArgs(orderArgs);
 
-            orders[action.orderId] = new degensContractLib.Order(orderArgs);
+            orders[action.orderId] = new DegensContractLib.Order(orderArgs);
 
             if (action.legacySig) {
                 await orders[action.orderId].signWithProviderLegacy(accountSigner[action.from], degensContract.address);

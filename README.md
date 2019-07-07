@@ -13,7 +13,7 @@ The protocol is described in full detail in [our documentation](https://degenspr
 * `docs/`
   * `protocol.md` - The source code for our documentation ([rendered version](https://degensprotocol.github.io/degens-contract/protocol.html))
 * `jslib/`
-  * `degensContractLib.js` - Javascript utilities for interacting with the contract. Used by the test framework
+  * `DegensContractLib.js` - Javascript utilities for interacting with the contract. Used by the test framework
 * `t/`
   * `lib/testlib.js` - Our custom test-suite framework
   * `*.js` - The test-cases that verify the smart contract's functionality
