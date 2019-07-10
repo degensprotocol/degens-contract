@@ -3,7 +3,7 @@ SOLC ?= solc
 
 ## Build and test
 
-.PHONY: all clean test run_tests fuzz check_node_modules
+.PHONY: all clean test run_tests check_node_modules check_requires
 
 all: build/Degens.json build/TestToken.json build/QueryDegens.json
 
