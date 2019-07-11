@@ -12,7 +12,6 @@ const tradeStatusLookupByNumber = [
 
     'ORDER_NO_BALANCE',
     'ORDER_EXPIRED',
-    'ORDER_FUTURE_TIMESTAMP',
     'ORDER_CANCELLED',
 
     'ORDER_BAD_SIG',

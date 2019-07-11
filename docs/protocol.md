@@ -306,7 +306,7 @@ The fields are given by the following schema:
 * **price**: A number between 1 and 999999999 inclusive, representing the price authorized by the order creator.
 * **direction**: Either 0 for a sell order, or 1 for a buy order.
 * **expiry**: Unix timestamp after which the order ceases to be valid.
-* **timestamp**: Unix timestamp when this order was created. Must be in the past when executed by the contract.
+* **timestamp**: Unix timestamp when this order was created. Used to support [bulk timestamp cancellation](#timestamp-cancellation).
 * **orderGroup**: A value used to support grouping orders together for batch cancellations, and limiting the total amount at risk, even with separate orders. The simplest approach just generates a new random value for each order, in which case each order will belong to its own orderGroup.
 
 #### Signature packing
@@ -407,10 +407,11 @@ Typically an order creator will set this to some point in time that they believe
 
 #### Timestamp cancellation
 
-Every order has a `timestamp` field. This is a unix timestamp that is supposed to represent when the order was created, and serves two purposes in the protocol:
+Orders have a `timestamp` field. This is a unix timestamp that is supposed to represent when the order was created.
 
-1. The contract will not process trades on orders with a timestamp in the future. This provides a way to publish orders that will only come into effect at a certain time in the future.
-1. Every address has an entry in the `cancelTimestamps` mapping in the contract. By calling the `cancelAll` function, each address can set its cancel timestamp to the current time. Any orders with timestamps earlier than this will be rejected by the contract.
+Participant addresses can have entries in the `cancelTimestamps` mapping in the contract. By calling the `cancelAll` function, each address can set its cancel timestamp to the current time. Any orders with `timestamp`s earlier than this value will be rejected by the contract.
+
+This provides a way to "bulk" cancel all outstanding orders with a single transaction.
 
 #### Order group cancellation
 
@@ -724,7 +725,6 @@ The `status` field of `LogTradeError` indicates why a trade failed. It will be o
 | TRADE_TOO_SMALL | The trade's amount would be too small, usually caused by dust balances and extreme order prices | Fail: taker or maker state |
 | ORDER_NO_BALANCE | The maker has insufficient effective balance | Fail: maker state |
 | ORDER_EXPIRED | The order's expiration timestamp has elapsed | Fail: time |
-| ORDER_FUTURE_TIMESTAMP | The order's timestamp has not yet elapsed | Fail: time |
 | ORDER_CANCELLED | The order was explicitly cancelled by the maker (either by cancelling its orderGroup, or bulk cancelling by timestamp) | Fail: maker state |
 | ORDER_BAD_SIG | The provided signature for the order does not match the maker address | Fail: malformed |
 | INCORRECT_TAKER | The order had a `taker` field specified, and the `msg.sender` that attempted to make the trade does not match. In practice it is impossible to get this value since according to [execution packed](#execution-packed) encoding, `msg.sender` is assumed to be taker, and if it wasn't get an `ORDER_BAD_SIG` instead | Fail: malformed |

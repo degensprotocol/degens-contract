@@ -197,7 +197,6 @@ contract Degens {
 
         ORDER_NO_BALANCE,
         ORDER_EXPIRED,
-        ORDER_FUTURE_TIMESTAMP,
         ORDER_CANCELLED,
 
         ORDER_BAD_SIG,
@@ -524,11 +523,6 @@ contract Degens {
             return t;
         }
 
-        if (block.timestamp < o.timestamp) {
-            t.status = TradeStatus.ORDER_FUTURE_TIMESTAMP;
-            return t;
-        }
-
         uint orderFilledAmount = filledAmounts[o.fillHash];
 
         if (cancelTimestamps[o.maker] >= o.timestamp || orderFilledAmount == uint(-1)) {
@@ -657,7 +651,7 @@ contract Degens {
     }
 
     function getOrderAmount(Order memory o) private view returns(uint) {
-        if (block.timestamp >= o.expiry || cancelTimestamps[o.maker] >= o.timestamp || block.timestamp < o.timestamp) return 0;
+        if (block.timestamp >= o.expiry || cancelTimestamps[o.maker] >= o.timestamp) return 0;
 
         uint filled = filledAmounts[o.fillHash];
         if (filled == uint(-1)) return 0;

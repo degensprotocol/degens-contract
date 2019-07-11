@@ -40,16 +40,16 @@ testlib.doTests([
 },
 
 {
-  desc: "order future timestamp",
+  desc: "order future timestamp allowed",
   actions: [
     { action: 'deposit', from: 'A', amount: 10000, },
     { action: 'deposit', from: 'B', amount: 10000, },
 
     { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 40, orderId: 1, timestampOffset: 30, },
 
-    { action: 'trade', from: 'B', orderIds: [1], amount: 500, expectLogs: [['LogTradeError', 'ORDER_FUTURE_TIMESTAMP']], },
+    { action: 'trade', from: 'B', orderIds: [1], amount: 500, expectLogs: [['LogTrade']], },
 
-    { action: 'assert', balances: { A: 10000, B: 10000, }, positions: { A: 0, B: 0, } },
+    { action: 'assert', balances: { A: 9667, B: 9501, }, positions: { A: 832, B: -832, } },
   ],
 },
 
