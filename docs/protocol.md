@@ -1,12 +1,12 @@
 # Introduction
 
-Degens is a peer-to-peer betting exchange protocol. Rather than customer funds being held in escrow by a central company, it uses an Ethereum smart contract. This documentation describes how the protocol is designed at a technical level.
+Degens is a peer-to-peer betting exchange protocol. Rather than customer funds being held in escrow by a central company, it uses an Ethereum smart contract. This documentation describes how the protocol and smart contract is designed.
 
 ## Decentralized
 
-In the Degens smart contract there are no owners, administrators, or any other privileged addresses. That means that every Ethereum address has the same privileges as any other. That even includes us, the developers. There are no owner modifiers, escape hatches, contract pausing, halting, or self-destructing. There are no mandatory fees, developer rewards, or rent-seeking utility tokens.
+In the Degens smart contract there are no owners, administrators, or any other privileged addresses. That means that every Ethereum address has the same privileges as any other. That even includes us, the developers. There are no owner modifiers, escape hatches, contract pausing, halting, or self-destructing. There are no affiliate fees, developer rewards, or rent-seeking tokens.
 
-That is to say, the Degens smart contract is as decentralized as it is possible for an Ethereum smart contract to be. Participants specify their trust relationships in a hybrid on-chain/off-chain system. This document will explain how this works in detail.
+That is to say, the Degens smart contract is as decentralized as it is possible for an Ethereum smart contract to be. Participants specify their trust relationships in a hybrid on-chain/off-chain system.
 
 ## Sports Betting
 
@@ -17,19 +17,19 @@ Although the smart contract is not specific to sports betting, that is our initi
 
 ## Multi-Token Denominated
 
-Degens allows betting with any [ERC-20](https://en.wikipedia.org/wiki/ERC-20) token. For example, WETH (wrapped ETH) or DAI (a stable token pegged to USD) are good choices since they are popular (many customers already have them) and are very liquid (easy and cheap to get if you don't have them).
+The Degens protocol supports betting with [almost](#token-assumptions) any [ERC-20](https://en.wikipedia.org/wiki/ERC-20) token. For example, WETH (wrapped ETH) or DAI (a stable token pegged to USD) are good choices since they are popular (many customers already have them) and are very liquid (easy and cheap to get if you don't have them).
 
 Aside from the token chosen for betting, and a small amount of ETH needed for paying gas, no other tokens are necessary. Even ETH is not necessarily required, for example with the [matching provider strategy](#matching).
 
-Many previous attempts at decentralized betting systems have created application-specific tokens that are needed for betting. We believe that requiring these "app-tokens" is undesirable. Not only must users learn how and where to acquire them, but to do so they need to pay market spreads (which will be high prior to substantial demand) and trading fees (which may be denominated in yet more special-purpose tokens).
+Many previous attempts at decentralized betting systems have created application-specific tokens that are needed for betting. We believe that requiring these "app-tokens" is undesirable. Not only must users learn how and where to acquire them, but to do so they need to pay trading fees and market spreads (which will be high prior to substantial demand).
 
 Even obtaining and using WETH or DAI may be an obstacle for non-technical users. However, compared to other demographics, sports bettors are accustomed to having to jump through various hoops prior to being able to place bets. There is in fact an entire industry built around moving funds in unorthodox ways for the purpose of sports betting (NetTeller, Skrill).
 
 ## Custody of Funds
 
-The primary advantage of using a smart contract for a betting exchange is to reduce counter-party risk for the users. Assuming there are no bugs in the smart contract, not even developers or operators are able to access approved funds or funds locked into trades. Neither are they able to freeze accounts or unwind trades to prevent trading or withdrawals.
+The primary advantage of using a smart contract for a betting exchange is to reduce counter-party risk for users. Assuming there are no bugs in the smart contract, not even developers or operators are able to access approved funds or funds locked into trades. Neither are they able to freeze accounts or unwind trades to prevent trading or withdrawals.
 
-[Oracles](#oracles) are parties who are intended to be separate from the exchange. These parties do have an attack vector in that it is possible for them to mis-report outcomes of events. However, if an oracle does this they will leave undeniable evidence on the blockchain. We have designed the system to minimize the incentive for oracles to do this.
+[Oracles](#oracles) are parties who are intended to be separate from the exchange. These parties do have the ability to mis-report outcomes of events. However, if an oracle does this they will leave undeniable evidence on the blockchain. We have designed the system to minimize the incentive for oracles to do this.
 
 A corollary to the exchange not being able to freeze funds or interfere with trading is that nobody has the ability to reverse or unwind any activity on the platform. All trades are final. However, it is in the interests of exchanges and oracles building on top of the protocol to build reputable businesses. Any users who feel they have suffered losses due to errors on our part are encouraged to contact their providers.
 
@@ -37,9 +37,9 @@ If for whatever reason oracles don't finalize a match, funds can be recovered af
 
 ## Fixed-odds
 
-All trades on Degens are **fixed-odds** bets. This means that the odds of a trade are known and agreed upon beforehand by the parties involved, and they cannot be changed after the fact. Of course, new subsequent trades can be made at different odds. Making new trades in the same direction as previous trades can serve to average up or down the position's cost basis, and trades in the opposite direction can either fully or partially close out a position at a profit or a loss, in which cases the account's balance will be immediately credited.
+All trades on Degens are **fixed-odds** bets. This means that the odds of a trade are known and agreed upon beforehand by the parties involved, and they cannot be changed after the fact. Of course, new subsequent trades can be made at different odds. Making new trades in the same direction as previous trades can serve to average up or down the position's cost basis, and trades in the opposite direction can either fully or partially close out the position at a profit or a loss, in which cases the account's balance will be immediately credited.
 
-Fixed-odds betting is distinct from [parimutuel betting](https://en.wikipedia.org/wiki/Parimutuel_betting) where all the bets on an event are pooled together and therefore the odds are only known at the end of the betting session (usually right before the event starts).
+Fixed-odds betting is distinct from [parimutuel betting](https://en.wikipedia.org/wiki/Parimutuel_betting) where all the bets on an event are pooled together and therefore the odds are only known at the end of the betting session (which must be before the event starts, or very soon after).
 
 ## In-game Trading
 
@@ -49,7 +49,7 @@ We view this as an important aspect of the protocol. Being able to trade at half
 
 Furthermore, not only is transaction ordering indeterminate, it can be influenced by gas price which adds a new dimension to in-game trading, one that may be attractive to sophisticated traders. Participants who don't wish to include gas prices in their trading models are advised to restrict in-game trading to half-time, timeouts, TV intermissions, etc, and to make careful use of the order expiry parameter.
 
-By using a matching model, an exchange can eliminate the concerns above by introducing an amount of centralization in the order matching, as will be discussed in the section on [provider strategies](#provider-strategies).
+Alternatively, by using a matching model, an exchange can eliminate the concerns above by introducing an amount of centralization to the order matching, as will be discussed in the section on [provider strategies](#provider-strategies).
 
 ## Partial Trades
 
@@ -139,10 +139,10 @@ All of the information required to compute the matchId is present inside the mat
 * Moving to the next level of the tree, compute the keccak256 hash of the concatenation of **detailsHash** (from the previous step), **recoveryTime**, and **cancelPrice**. The last two values are encoded as big-endian `uint256` values. This hash is called the **witness**.
 * Next, compute the keccak256 hash of the concatenation of the **witness** (from the previous step), **graderQuorum**, **graderFee**, and all the addresses in **graders** (in order). **graderQuorum** and **graderFee** are encoded as big-endian `uint256` values, and each grader address is left-padded with 0 bytes to make 32 bytes. The resulting hash is the **matchId**.
 
-This somewhat cumbersome method of computing the matchId is so that the smallest amount of information needs to be passed to the contract at each step:
+This somewhat cumbersome method of computing the matchId is so that the smallest amount of information needs to be passed to the contract for each operation:
 
 * When creating orders, or executing them on the smart contract, only the **matchId** is required. Before doing so, all participants should download and examine the match details, market rules, and event JSON objects, and compute the matchId themselves using this information. Only if they are satisfied with the contents of the match should they create orders and/or execute other orders on the smart contract. Finally, they should ensure they save copies of these JSON objects.
-* After an event has completed and its outcome is known, the specified graders will create signed messages indicating what they believe the final price should be. Once a quorum of graders has agreed on the final price, anybody can submit these signed messages along with the **witness**, **graderQuorum**, **graderFee**, and **graders** addresses. This will finalize the match at the price agreed upon by the graders. Note that the matchId is not passed in when claiming because the smart contract computes this itself.
+* After an event has completed and its outcome is known, the specified graders will create signed messages indicating what they believe the final price should be. Once a quorum of graders has agreed on the final price, anybody can submit these signed messages along with the **witness**, **graderQuorum**, **graderFee**, and **graders** addresses. This will finalize the match at the price agreed upon by the graders. Note that *matchId* is not passed in when claiming because the smart contract computes this itself.
     * After the first participant has finalized the match, subsequent claims can be done with `claimFinalized` to reduce calldata costs.
 * In case the graders do not create signed finalization messages for some reason, participants can wait until **recoveryTime**, at which point the contract can be finalized at **cancelPrice**. To do this, anybody can submit the **detailsHash**, **recoveryTime**, **cancelPrice**, **graderQuorum**, **graderFee**, and **graders** addresses. Note that the **witness** and **matchId** fields are not passed in, since the contract computes this itself.
 
@@ -162,15 +162,15 @@ Using the Degens protocol, anyone can be a market maker, a trader, or both.
 
 ## Implied Probability
 
-Each match may be valued at an integer **price** from 0 to 1e9 (1,000,000,000, or 1 american billion). This corresponds to the **odds** in traditional sports betting, since it reflects the perceived chances that an outcome will occur, and therefore the amount that a trader will need to risk to earn a given amount.
+Each match may be valued at an integer **price** from 0 to 1e9 (1,000,000,000, or 1 american billion). This corresponds to the **odds** in traditional sports betting, since it reflects the perceived chances that an outcome will occur, and therefore the amount that a trader should risk to earn a given amount.
 
-When it is finalized, either the outcome will have been found to be true, in which case the contract will be finalized at a price of 1 billion, or it will have been found to be false, in which case it will be finalized at a price of 0. Prior to finalization, market participants can choose to value a contract at prices in the range between 0 and 1 billion.
+When a match is finalized, either the outcome will have been found to be true, in which case the contract will be finalized at a price of 1e9, or it will have been found to be false, in which case it will be finalized at a price of 0. Prior to finalization, market participants can choose to value a contract at prices in the range between 0 and 1 billion.
 
-This range from 0 to 1 billion is chosen so it is easy to map to probability. To do so, scale the price by dividing it by 1e9.
+This range from 0 to 1e9 is chosen so it is easy to map to probability. To do so, scale the price by dividing it by 1e9.
 
 Odds in this format are called **implied probability** odds and can easily be converted to [more conventional odds representations](#odds-conversion).
 
-While 1e9 provides a very large granularity for prices, providers may require prices for orders it accepts to be less granular. For example, they may require that prices are increments of 0.1.
+While 1e9 provides a very large granularity for prices, providers may require orders they post on their orderbooks to have less granular prices. For example, they may require that prices are integer multiples of 0.1.
 
 ## Bid-Ask Spread
 
@@ -182,7 +182,7 @@ In a popular and competitively traded event, the bid-ask spread is typically sma
 
 In a centralized exchange, it is usually impossible to have a negative bid-ask spread (where a bid is at a higher price than an ask) because these overlapping orders would be filled immediately. However, in the Degens protocol, negative bid-ask spreads are possible since order-books are decoupled from execution, and because there may be multiple independent order-books. Negative bid-ask spreads should be uncommon though because they represent opportunities for arbitrage. This is where an opportunistic trader simultaneously buys at the low ask price and sells at the high bid price so as to profit from the difference. The `matchOrders` function on the Degens contract allows atomic arbitrage, where either both of the trades will execute or neither will.
 
-As well as negative bid-ask spreads, there can also be bid-ask spreads of zero. In this case there is no opportunity for arbitrage profits and the true bid-ask spread can be thought of as the gas required to execute a trade.
+As well as negative bid-ask spreads, there can also be bid-ask spreads of zero. In this case there is no opportunity for arbitrage profits but the true bid-ask spread can be thought of as the gas required to execute a trade.
 
 ## Amount at Risk
 
@@ -278,6 +278,8 @@ The domain used by the Degens contract is given by the following specification:
 * The protocol name is `"Degens"`
 * The version is `"1.0"`
 * The verifyingContract is the deployed contract address
+
+Note: Because signatures aren't specific to particular chain IDs, it is important that Degens contracts are always deployed at distinct addresses.
 
 #### EIP712 Order Schema
 
@@ -435,7 +437,7 @@ So, multiple orders can be issued that all share the same fill hash, but differ 
 This permits the following use-cases:
 
 * A market maker may wish to offer markets on a variety of sports, but limit the total amount of liquidity per-sport. This can be done by choosing an orderGroup when creating a batch of orders for each sport. In this case, the total possible exposure for each sport will be limited.
-* When continually creating orders with short expiry times, it is desirable to create a new order before the older order expires, and replace the old order with the new one so that users are less likely to trade on expired orders. However, this could introduce a vulnerability in that there is a period of time where both orders are valid. If a user stores the old order and waits for the new order, he or she could trade on both of them, doubling the desired maximum exposure for the order creator. Using order groups, this can be solved by giving the new order the same order group as the old order. Sophisticated orderbook nodes can also automatically do the replacement of old about-to-expire orders by looking for duplicate fill hashes. Note that this technique can be relied on to replace an order with a better price (for the taker) but not a worse price, since the taker could simply use the original order to get the better price. To remove these orders, a maker must cancel or soft cancel (if applicable, see [matching](#matching)).
+* When continually creating orders with short expiry times, it is desirable to create a new order before the older order expires, and replace the old order with the new one so that users are less likely to trade on expired orders. However, this could introduce a vulnerability in that there is a period of time where both orders are valid. If a user stores the old order and waits for the new order, he or she could trade on both of them, doubling the desired maximum exposure for the order creator. Using order groups, this can be solved by giving the new order the same order group as the old order. Sophisticated orderbook nodes can also automatically do the replacement of old about-to-expire orders by looking for duplicate fill hashes. Note that this technique can be relied on to replace an order with a better price (for the taker) but not a worse price, since the taker could simply use the original order to get the better price. To remove these orders, a maker must cancel or, if applicable, [soft cancel](#matching).
 
 
 
@@ -454,7 +456,7 @@ Note that `testOrder` does not verify the signatures of orders since that is ind
 
 ### Query Contract
 
-Calling `testOrder` individually for every order that is changed by a block may take a long time due to node latency. To improve upon this, there is a separate contract called `QueryDegens` available that can query the status of a batch of orders all at once. Similarly, it supports querying balances and approvals for many addresses and many tokens in a single batch.
+Calling `testOrder` individually for every order that is affected by a block may take a long time due to node latency. To improve upon this, there is a separate contract called `QueryDegens` available that can query the status of a batch of orders all at once. Similarly, it supports querying balances and approvals for many addresses and many tokens in a single batch.
 
 The reason that this batch functionality lives in a separate smart contract is so that its functionality can be improved upon later. Since it provides a pure read-only view, a new version of `QueryDegens` can be deployed with no effect on the main Degens contract.
 
@@ -736,7 +738,7 @@ The `status` field of `LogTradeError` indicates why a trade failed. It will be o
 
 The Degens contract can throw various errors during operation. These errors are distinct from the trade errors signified by [trade status](#trade-status), in that they abort the entire transaction. Usually these errors are a result of malformed input to the contract.
 
-All errors created by the degens contract are prefixed with `DERR_` to disambiguate them from errors from other contracts, in the case of a token contract throwing an error (which the Degens contract will not handle, and will abort the entire transaction), or when calling the Degens contract from another contract using an "internal transaction".
+All errors created by the Degens contract are prefixed with `DERR_` to disambiguate them from errors from other contracts, in the case of a token contract throwing an error (which the Degens contract will not handle, and will abort the entire transaction), or when calling the Degens contract from another contract using an "internal transaction".
 
 | Error | Description |
 |:-----|:-------------------------------------------------|
@@ -797,7 +799,13 @@ The following are the interaction points where the Degens contract calls a token
 * In the `lookupBalance` function, the ERC-20 functions `balanceOf` and `allowance` are called. However, these are invoked with the [staticcall](https://eips.ethereum.org/EIPS/eip-214) op-code, so even a malicious contract cannot do anything harmful.
 * In the `adjustBalance` function, the ERC-20 functions `transfer` and `transferFrom` are called, depending on whether the contract is crediting or debiting an account, respectively.
 
-### Re-entranct Token Contracts
+### Token assumptions
+
+* The Degens contract will in certain cases give indivisible smallest units of tokens to an arbitrary party, or (rarely) allow them to be permanently lost as contract dust. Because of this, smallest token units should be of insignificant value. We recommend using tokens with 18 decimals, such as WETH or DAI.
+* Tokens should have sufficient value and/or limited `totalSupply` such that no address has a balance exceeding $2^{128} - 1$ smallest units. With tokens such as DAI and WETH this provides ample dynamic range: up to ~340 quintillion DAI or WETH. 
+* Tokens that don't explicitly return a result from `transfer` or `transferFrom` are [not ERC-20 compliant](https://medium.com/coinmonks/missing-return-value-bug-at-least-130-tokens-affected-d67bf08521ca) and therefore may not work with Degens.
+
+### Re-entrant Token Contracts
 
 A malicious token contract can re-enter the Degens contract from within its `transfer` or `transferFrom` functions.
 
@@ -811,17 +819,15 @@ We feel the risk from this attack is minimal, because:
 
 Entirely implementing the Checks-Effects-Interactions pattern is not possible with the current architecture because `trade` and `matchOrders` both accept arrays of orders to process and these orders are processed (including issuing transfers) within a loop.
 
-Similarly, tokens that [don't comply with the ERC-20 specification](https://medium.com/coinmonks/missing-return-value-bug-at-least-130-tokens-affected-d67bf08521ca) may not work with Degens, and we don't feel it is worth doing anything special to support them.
-
 
 
 # Oracles
 
-An oracle is an entity charged with providing information to the blockchain. Sometimes these entities are also called "graders" or "reporters". The Degens contract doesn't itself designate any addresses as oracles. Instead, when creating a match, multiple oracle addresses can be specified by the match creator. These addresses are accessible to the smart contract because they are encoded in the hash tree that results in the matchId. See [Computing matchIds](#computing-matchids) for details on how this works.
+An oracle is an entity charged with providing information to the blockchain. Sometimes these entities are also called "graders" or "reporters". The Degens contract doesn't itself designate any addresses as oracles. Instead, when creating a match, oracle addresses are specified by the match creator. These addresses are accessible to the smart contract because they are encoded in the hash tree that results in the matchId. See [Computing matchIds](#computing-matchids) for details on how this works.
 
-The matchId encoding permits a multi-sig arrangement for oracles. For example, a match could require at least 2 of 3 oracles to agree on a finalization price. Providers should ensure they only offer matches that designate oracles that they trust to offer reliable service for their users. Ideally, oracles should be independently operated to reduce the possibility of collusion.
+This matchId encoding permits a multi-sig arrangement for oracles. For example, a match could require at least 2 of 3 oracles to agree on a finalization price. Providers should ensure they only offer matches that designate oracles that they trust to offer reliable service for their users. Ideally, oracles should be independently operated to reduce the possibility of collusion.
 
-Because the oracle's reporting record is permanently embedded onto the blockchain, users have indisputable evidence of any mis-reported matches. This is important because it may provide evidence when attempt to recover an oracle's [bond](#oracle-bonding).
+Because the oracle's reporting record is permanently embedded onto the blockchain, users have indisputable evidence of any mis-reported matches. This is important because it may provide necessary evidence to recover an oracle's [bond](#oracle-bonding).
 
 Additionally, there is no way for an oracle to report different outcomes to different users: A mis-reported finalization price will affect every participant of the match. This is important because as the number of participants on a match increases, it makes it less likely that an incorrect report would go unnoticed.
 
@@ -834,12 +840,14 @@ After a match has been finalized, funds can be claimed by participants. There ar
 
 A grader signature is a signature of the concatenation of the address of the Degens contract, the matchId being graded, and the final price. These signatures can only be created by the addresses specified in the match JSON, and this is validated by `claim` using the process described in [computing matchIds](#computing-matchids).
 
-In the `claim` method, an array of [packed signatures](#signature-packing) must be passed in. This array of signatures must be the same length as the number of graders specified in the match JSON. Because not all oracles need to report, if a signature is missing for a particular grader, it should be passed in as all 0s, in which case the signature will be skipped. After verifying all signatures (except all-zeros), the contract will ensure that at least `graderQuorum` signatures have been verified.
+In the `claim` method, an array of [packed signatures](#signature-packing) must be passed in. This array of signatures must be the same length as the number of graders specified in the match JSON. Because not all oracles need to report, if a signature is missing for a particular grader it should be passed in as all zero bytes, in which case the signature will be skipped. After verifying all signatures (except ones that are all-zeros), the contract will ensure that at least `graderQuorum` signatures have been verified.
+
+Note: Because grader signatures aren't specific to particular chain IDs, it is important that Degens contracts are always deployed at distinct addresses.
 
 
 ### Claim Targets
 
-Both `claim` and `claimFinalized` require a array of `uint256` **claim targets**. This is a list of addresses, left-padded with 0 bytes. Since the contract supports betting in different tokens, the addresses for tokens being claimed need to be provided in addition to the addresses of participants making the claims.
+Both `claim` and `claimFinalized` require an array of `uint256` **claim targets**. This is a list of addresses, left-padded with 0 bytes. Since the contract supports betting with different tokens, the addresses for tokens being claimed need to be provided in addition to the addresses of participants making the claims.
 
 The claim targets array is processed from start to finish. If a `uint256` with the most significant bit is set, it is considered a token address, and all the following addresses are considered patricipant addresses, up until the next `uint256` with a most-significant bit set.
 
@@ -872,15 +880,15 @@ Charging the fees as a percentage of claimable amount at finalization time compe
 
 ## Oracle Competition
 
-Since oracles are specified as an M-of-N multi-sig by the match creator, not all oracles need to report a result for a match in order for it to be finalized. The oracles that report will evenly split the fee. For example, 2 of 3 oracles may be required, in which case a match may be finalized with only 2, and each will take 50% of the grading fee. Although when calling `claim`, a participant *could* pass in all 3, this provides no benefit to the user, and increases gas costs.
+Since oracles are specified as an M-of-N multi-sig by the match creator, not all oracles need to report a result for a match in order for it to be finalized. The oracles that report will evenly split the fee. For example, 2 of 3 oracles may be required, in which case a match may be finalized with only 2, and each will take 50% of the grading fee. Although when calling `claim`, a participant *could* pass in all 3, this provides no benefit to the user, and increases gas costs. Because of this, oracles have an incentive to quickly create signed grading messages.
 
-Because of this, oracles have an incentive to quickly create signed grading messages.
+As described in the previous section, two users with opposing positions can trade with eachother prior to match finalization to avoid paying oracle fees. This ability for participants to cooperate and avoid fees helps ensure oracle fees are competitively low, and ultimately reduces the influence of oracles over the protocol.
 
 ## Funds Recovery
 
 In the event that a sufficient number of oracles don't provide a result, after waiting a period of time the match can be finalized by anyone at the `cancelPrice` so that positions can be recovered.
 
-As described in the [Computing matchIds](#computing-matchids), the Degens smart contract can access the `recoveryTime` and `cancelPrice` parameters by reconstructing the matchId's hash tree. Given these parameters the `recoverFunds` method can be invoked. If the current time has passed `recoveryTime`, then the contract will be finalized at `cancelPrice`, often 0.50.
+As described in [computing matchIds](#computing-matchids), the Degens smart contract can access the `recoveryTime` and `cancelPrice` parameters by reconstructing the matchId's hash tree. Given these parameters the `recoverFunds` method can be invoked. If the current time has passed `recoveryTime`, then the contract will be finalized at `cancelPrice`, often 0.50.
 
 For this reason, every participant on a match should verify that the `recoveryTime` and `cancelPrice` are fairly set. The `recoveryTime` should be in the future, so nobody can prematurely invoke `recoveryTime`, but not too far in the future that funds will be locked for a long time. Similarly, every trader should keep a copy of the match details JSON, because this contains the information required to invoke `recoverFunds`.
 
@@ -890,14 +898,17 @@ For this reason, every participant on a match should verify that the `recoveryTi
 
 # Conclusion
 
-We believe all the pieces are finally in place for a decentralized prediction market for sporting events:
+We believe all the pieces are in place for a decentralized prediction market for sporting events:
 
-* Companies like BetFair have proven the viability of betting platforms modeled on financial exchanges.
-* Bitcoin has spread the notion of a blockchain as a trustless, world-wide, unstoppable currency.
-* Ethereum has implemented a blockchain implementation that allows the distribution of funds according to custom rules.
+* Companies like BetFair have proven the viability of betting platforms modeled on financial exchanges
+* Bitcoin has spread the notion of a blockchain as a trustless, world-wide, unstoppable currency
+* Ethereum has implemented a blockchain implementation that allows the distribution of funds according to custom rules
 
-The Degens protocol is a building block that we believe will result in the culmination of these ideas.
+The Degens smart contract is a truely decentralized system that allows providers to build systems with varying degrees of centralization.
 
+The multi-sig oracle fee system carefully balances the conflicting goals of trustlessness and quick and inexpensive settlement.
+
+Our hybrid on-chain/off-chain design allows us to build efficient and user-friendly services, while still maintaining the benefits of secure blockchain settlement.
 
 
 
