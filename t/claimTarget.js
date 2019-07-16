@@ -31,9 +31,9 @@ testlib.testTemplate({
     { action: 'deposit', from: 'B', amount: 10000, token: 'alt', },
     { action: 'deposit', from: 'C', amount: 10000, token: 'alt', },
 
-    { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 50, orderId: 1, token: 'alt', },
-    { action: 'trade', from: 'B', orderIds: [1], amount: 300, },
-    { action: 'trade', from: 'C', orderIds: [1], amount: 200, },
+    { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 50, orderId: 4, token: 'alt', },
+    { action: 'trade', from: 'B', orderIds: [4], amount: 300, },
+    { action: 'trade', from: 'C', orderIds: [4], amount: 200, },
 
 
     { action: 'assert', balances: { A: 9834, B: 9501, C: 9002 }, positions: { A: -831, B: -832, C: 1663 } },

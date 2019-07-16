@@ -121,7 +121,7 @@ async function doTest(spec, numTest, totalTests) {
             });
         });
 
-        await waitforsocket('localhost', 8501, {timeout: 5000});
+        await waitforsocket('localhost', 8501, {timeout: 7500});
 
 
         const SolCompilerArtifactAdapter = require('@0x/sol-trace').SolCompilerArtifactAdapter;
@@ -417,6 +417,7 @@ async function doTest(spec, numTest, totalTests) {
 
             if (action.modOrderArgs) action.modOrderArgs(orderArgs);
 
+            if (orders[action.orderId]) throw(`orderId already set: ${action.orderId}`);
             orders[action.orderId] = new DegensContractLib.Order(orderArgs);
 
             if (action.legacySig) {

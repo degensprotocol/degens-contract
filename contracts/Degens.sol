@@ -199,8 +199,6 @@ contract Degens {
         ORDER_EXPIRED,
         ORDER_CANCELLED,
 
-        ORDER_BAD_SIG,
-        INCORRECT_TAKER,
         AMOUNT_MALFORMED,
         SELF_TRADE
     }
@@ -532,11 +530,6 @@ contract Degens {
 
         if (msg.sender == o.maker) {
             t.status = TradeStatus.SELF_TRADE;
-            return t;
-        }
-
-        if (o.taker != address(0) && o.taker != msg.sender) {
-            t.status = TradeStatus.INCORRECT_TAKER;
             return t;
         }
 

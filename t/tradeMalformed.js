@@ -21,8 +21,7 @@ testlib.doTests([
 
     { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 40, orderId: 1, taker: 'C', },
 
-    { action: 'trade', from: 'B', orderIds: [1], amount: 500, expectError: 'DERR_INVALID_ORDER_SIGNATURE', },
-    //{ action: 'trade', from: 'A', orderIds: [1], amount: 500, expectLogs: [['LogTradeError', 'INCORRECT_TAKER']], },
+    { action: 'trade', from: 'B', orderIds: [1], amount: 500, expectError: 'DERR_INVALID_ORDER_SIGNATURE', }, // not DERR_INVALID_TAKER
 
     { action: 'assert', balances: { A: 10000, B: 10000, C: 10000, }, positions: { A: 0, B: 0, C: 0, } },
 

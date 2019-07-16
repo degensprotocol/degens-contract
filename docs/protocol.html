@@ -916,7 +916,7 @@ Bal_{new} ={} &amp; Bal_{old} \\
 </tr>
 <tr class="even">
 <td align="left">OK</td>
-<td align="left">The trade succeeded, and fund have been transferred and positions updated. This is the only status where changes to the contract's storage or ERC-20 transfers have been performed.</td>
+<td align="left">The trade succeeded, funds have been transferred, and positions updated. This is the only status where changes to the contract's storage or ERC-20 transfers have been performed.</td>
 <td align="left">Success</td>
 </tr>
 <tr class="odd">
@@ -955,16 +955,6 @@ Bal_{new} ={} &amp; Bal_{old} \\
 <td align="left">Fail: maker state</td>
 </tr>
 <tr class="even">
-<td align="left">ORDER_BAD_SIG</td>
-<td align="left">The provided signature for the order does not match the maker address</td>
-<td align="left">Fail: malformed</td>
-</tr>
-<tr class="odd">
-<td align="left">INCORRECT_TAKER</td>
-<td align="left">The order had a <code>taker</code> field specified, and the <code>msg.sender</code> that attempted to make the trade does not match. In practice it is impossible to get this value since according to <a href="#execution-packed">execution packed</a> encoding, <code>msg.sender</code> is assumed to be taker, and if it wasn't get an <code>ORDER_BAD_SIG</code> instead</td>
-<td align="left">Fail: malformed</td>
-</tr>
-<tr class="even">
 <td align="left">AMOUNT_MALFORMED</td>
 <td align="left">The amount specified in the trade exceeds <span class="math inline">\(2^{128} - 1\)</span>. Note that orders cannot specify amounts larger than this because they won't fit into the <a href="#execution-packed">execution packed</a> encoding</td>
 <td align="left">Fail: malformed</td>
@@ -1001,7 +991,7 @@ Bal_{new} ={} &amp; Bal_{old} \\
 </tr>
 <tr class="odd">
 <td align="left"><code>DERR_INVALID_TAKER</code></td>
-<td align="left">This order can only be invoked by a certain <code>taker</code>, and <code>msg.sender</code> is not this taker. NOTE: This error cannot actually be thrown, since <a href="#execution-packed">execution packed</a> encoding does not explicitly include <code>taker</code>. You will generally instead see <code>DERR_INVALID_ORDER_SIGNATURE</code>.</td>
+<td align="left">This order can only be invoked by a certain <code>taker</code>, and <code>msg.sender</code> is not this taker. NOTE: This error cannot actually be thrown, since <a href="#execution-packed">execution packed</a> encoding does not explicitly include <code>taker</code>, and is assumed to be <code>msg.sender</code>. Otherwise, the trade will fail with <code>DERR_INVALID_ORDER_SIGNATURE</code> before the <code>taker</code> can be verified.</td>
 </tr>
 <tr class="even">
 <td align="left"><code>DERR_INVALID_PRICE</code></td>
@@ -1096,7 +1086,7 @@ Bal_{new} ={} &amp; Bal_{old} \\
 <li>After adjusting positions, the sum of all the positions on a match must be 0.</li>
 <li>The net of the change in balances must be the negative of the change in exposure for the match.</li>
 </ol>
-<p>The exposure is the amount that will be claimable when the match finalizes. Due to invariant 1, this can be calculated as the sum of all positive positions on the match.</p>
+<p>The exposure is the amount that will be claimable when the match finalizes. Due to invariant 1, this can be calculated as the sum of all positive positions on the match (or, equivalently, the sum of all negative positions on the match times -1).</p>
 <p>If invariant 2 does not hold because it is off-by-one, then rounding has occurred when calculating the balance deltas. If the exposure is one more than it should be, then the position delta is reduced by 1. If the exposure is one less than it should be, the extra wei is arbitrarily added to the balance of the party creating the long-side of the trade. In any other case, an assertion is triggered.</p>
 <p>After applying this rounding compensation, the invariants are rechecked, and an assert is triggered if they still aren't satisfied.</p>
 <p>In our test-suite, these invariants are checked after every operation using a white-box view into the contract. As well as carefully chosen test values, we also have an amount fuzzer that exercises these invariant checks.</p>

@@ -14,8 +14,6 @@ const tradeStatusLookupByNumber = [
     'ORDER_EXPIRED',
     'ORDER_CANCELLED',
 
-    'ORDER_BAD_SIG',
-    'INCORRECT_TAKER',
     'AMOUNT_MALFORMED',
     'SELF_TRADE',
 ];

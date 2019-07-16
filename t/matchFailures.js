@@ -4,27 +4,6 @@ let testlib = require('./lib/testlib.js');
 testlib.doTests([
 
 {
-  desc: "malformed",
-  actions: [
-    { action: 'deposit', from: 'A', amount: 10000, },
-    { action: 'deposit', from: 'B', amount: 10000, },
-
-    { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 60, orderId: 1, },
-    { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 60, orderId: 2, },
-    { action: 'order', from: 'B', amount: 633, dir: 'buy', price: 40, orderId: 3, },
-
-    { action: 'matchOrders', from: 'A', leftOrderId: 1, rightOrderIds: [], expectError: "DERR_EMPTY_PACKEDRIGHTORDERS", },
-
-    { action: 'matchOrders', from: 'A', leftOrderId: 1, rightOrderIds: [1], expectError: "DERR_SAME_MAKER", },
-    { action: 'matchOrders', from: 'A', leftOrderId: 1, rightOrderIds: [2], expectError: "DERR_SAME_MAKER", },
-
-    { action: 'matchOrders', from: 'A', leftOrderId: 1, rightOrderIds: [3], expectError: "DERR_SAME_DIRECTION", },
-
-    { action: 'assert', balances: { A: 10000, B: 10000 }, positions: { A: 0, B: 0, } },
-  ],
-},
-
-{
   desc: "right order fails",
   actions: [
     { action: 'deposit', from: 'A', amount: 10000, },

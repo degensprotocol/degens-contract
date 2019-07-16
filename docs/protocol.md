@@ -720,7 +720,7 @@ The `status` field of `LogTradeError` indicates why a trade failed. It will be o
 | Status | Description | Classification |
 |:-----|:-------------------------------------------------|:----------|
 | INVALID | An invalid trade status: This should only ever exist in a trade while it is being processed, so it should never appear in logs. This status is represented by `0`, so un-initialized `Trade` structs will have an invalid status.  | N/A |
-| OK | The trade succeeded, and fund have been transferred and positions updated. This is the only status where changes to the contract's storage or ERC-20 transfers have been performed. | Success |
+| OK | The trade succeeded, funds have been transferred, and positions updated. This is the only status where changes to the contract's storage or ERC-20 transfers have been performed. | Success |
 | TAKER_NO_BALANCE | The taker has insufficient effective balance | Fail: taker state |
 | TRADE_EXPIRED | The taker set a trade expiration time, and the trade was mined after that | Fail: time |
 | MATCH_FINALIZED | The match has been finalized, so no further trades are possible on this match | Fail: match state |
@@ -728,8 +728,6 @@ The `status` field of `LogTradeError` indicates why a trade failed. It will be o
 | ORDER_NO_BALANCE | The maker has insufficient effective balance | Fail: maker state |
 | ORDER_EXPIRED | The order's expiration timestamp has elapsed | Fail: time |
 | ORDER_CANCELLED | The order was explicitly cancelled by the maker (either by cancelling its orderGroup, or bulk cancelling by timestamp) | Fail: maker state |
-| ORDER_BAD_SIG | The provided signature for the order does not match the maker address | Fail: malformed |
-| INCORRECT_TAKER | The order had a `taker` field specified, and the `msg.sender` that attempted to make the trade does not match. In practice it is impossible to get this value since according to [execution packed](#execution-packed) encoding, `msg.sender` is assumed to be taker, and if it wasn't get an `ORDER_BAD_SIG` instead | Fail: malformed |
 | AMOUNT_MALFORMED | The amount specified in the trade exceeds $2^{128} - 1$. Note that orders cannot specify amounts larger than this because they won't fit into the [execution packed](#execution-packed) encoding | Fail: malformed |
 | SELF_TRADE | The taker and maker are the same address, which is disallowed | Fail: malformed |
 
@@ -744,7 +742,7 @@ All errors created by the Degens contract are prefixed with `DERR_` to disambigu
 |:-----|:-------------------------------------------------|
 | `DERR_UNKNOWN_METHOD` | Unknown function on the contract was called. This happens when you try to send a simple ether transfer to the contract, for example. |
 | `DERR_INVALID_ORDER_SIGNATURE` | The signature provided with an order does not match the `maker` address' signature. |
-| `DERR_INVALID_TAKER` | This order can only be invoked by a certain `taker`, and `msg.sender` is not this taker. NOTE: This error cannot actually be thrown, since [execution packed](#execution-packed) encoding does not explicitly include `taker`. You will generally instead see `DERR_INVALID_ORDER_SIGNATURE`. |
+| `DERR_INVALID_TAKER` | This order can only be invoked by a certain `taker`, and `msg.sender` is not this taker. NOTE: This error cannot actually be thrown, since [execution packed](#execution-packed) encoding does not explicitly include `taker`, and is assumed to be `msg.sender`. Otherwise, the trade will fail with `DERR_INVALID_ORDER_SIGNATURE` before the `taker` can be verified. |
 | `DERR_INVALID_PRICE` | An order's price was not in the correct range (between 0 and 1e9, not inclusive) |
 | `DERR_INVALID_DIRECTION` | An order's direction was not valid (must be either 0 or 1) |
 | `DERR_EMPTY_PACKEDORDERS` | A malformed `trade` invocation: The `packedOrders` parameter was empty |
@@ -777,7 +775,7 @@ After determining the amounts at risk for each party to a new trade, the contrac
 1. After adjusting positions, the sum of all the positions on a match must be 0.
 1. The net of the change in balances must be the negative of the change in exposure for the match.
 
-The exposure is the amount that will be claimable when the match finalizes. Due to invariant 1, this can be calculated as the sum of all positive positions on the match.
+The exposure is the amount that will be claimable when the match finalizes. Due to invariant 1, this can be calculated as the sum of all positive positions on the match (or, equivalently, the sum of all negative positions on the match times -1).
 
 If invariant 2 does not hold because it is off-by-one, then rounding has occurred when calculating the balance deltas. If the exposure is one more than it should be, then the position delta is reduced by 1. If the exposure is one less than it should be, the extra wei is arbitrarily added to the balance of the party creating the long-side of the trade. In any other case, an assertion is triggered.
 
