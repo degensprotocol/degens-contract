@@ -211,7 +211,7 @@ $$ A_{total} \times \frac{1e9 - Price_{final}}{1e9} $$
 
 Finalization prices are usually either 1e9 or 0. This means that either the buyer or the seller respectively will be able to claim the entire amount, and the other will be able to claim nothing.
 
-However, in certain rare circumstances a match will have no determinable outcome and will need to be finalized at the `cancelPrice` specified in the match details. The cancel price should be accounted for in trader models. Typically the cancel price will be `50`, however a different price may be provided if the initial market value of a contract is anticipated to be materially different. This is especially important for "money-line" matches (matches without point-spreads).
+However, in certain rare circumstances a match will have no determinable outcome and will need to be finalized at the `cancelPrice` specified in the match details. The cancel price should be accounted for in trader models. Typically the cancel price will be `1e9 * .5`, however a different price may be provided if the initial market value of a contract is anticipated to be materially different. This is especially important for "money-line" matches (matches without point-spreads).
 
 
 
@@ -888,7 +888,7 @@ As described in the previous section, two users with opposing positions can trad
 
 In the event that a sufficient number of oracles don't provide a result, after waiting a period of time the match can be finalized by anyone at the `cancelPrice` so that positions can be recovered.
 
-As described in [computing matchIds](#computing-matchids), the Degens smart contract can access the `recoveryTime` and `cancelPrice` parameters by reconstructing the matchId's hash tree. Given these parameters the `recoverFunds` method can be invoked. If the current time has passed `recoveryTime`, then the contract will be finalized at `cancelPrice`, often 0.50.
+As described in [computing matchIds](#computing-matchids), the Degens smart contract can access the `recoveryTime` and `cancelPrice` parameters by reconstructing the matchId's hash tree. Given these parameters the `recoverFunds` method can be invoked. If the current time has passed `recoveryTime`, then the contract will be finalized at `cancelPrice`, often `1e9 * 0.5`.
 
 For this reason, every participant on a match should verify that the `recoveryTime` and `cancelPrice` are fairly set. The `recoveryTime` should be in the future, so nobody can prematurely invoke `recoveryTime`, but not too far in the future that funds will be locked for a long time. Similarly, every trader should keep a copy of the match details JSON, because this contains the information required to invoke `recoverFunds`.
 
