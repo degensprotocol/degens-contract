@@ -116,8 +116,8 @@ contract TestToken is ERC20Interface, Owned {
     // Constructor
     // ------------------------------------------------------------------------
     constructor() public {
-        symbol = "FIXED";
-        name = "Example Fixed Supply Token";
+        symbol = "TST";
+        name = "Degens Test Token";
         decimals = 18;
         _totalSupply = 1000000 * 10**uint(decimals);
         balances[owner] = _totalSupply;
