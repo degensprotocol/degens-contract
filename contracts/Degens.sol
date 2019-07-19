@@ -168,7 +168,7 @@ contract Degens {
         if ((packed[0] & (0x02 << (11*8))) != 0) signatureHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", signatureHash));
 
         require(ecrecoverPacked(signatureHash, packed[2], packed[3]) == o.maker, "DERR_INVALID_ORDER_SIGNATURE");
-        require(o.taker == address(0) || o.taker == msg.sender, "DERR_INVALID_TAKER");
+        require(o.taker == address(0) || o.taker == msg.sender, "DERR_INVALID_TAKER"); // not reachable
         require(o.price > 0 && o.price < MAX_PRICE, "DERR_INVALID_PRICE");
         require(o.direction < 2, "DERR_INVALID_DIRECTION");
     }
