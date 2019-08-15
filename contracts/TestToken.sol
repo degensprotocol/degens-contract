@@ -137,7 +137,11 @@ contract TestToken is ERC20Interface, Owned {
     function setTransferFromFail(bool status) public { transferFromFail = status; }
     function setTransferReturnFalse(bool status) public { transferReturnFalse = status; }
     function setTransferFromReturnFalse(bool status) public { transferFromReturnFalse = status; }
-    function magicMintTokens(address addr, uint tokens) public { balances[addr] += tokens; }
+
+    function magicMintTokens(address addr, uint tokens) public {
+        balances[addr] += tokens;
+        emit Transfer(address(0), addr, tokens);
+    }
 
 
 
