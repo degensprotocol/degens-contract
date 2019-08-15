@@ -811,9 +811,9 @@ function setMSB256(n) {
 
 
 function computeContractAddress(addr) {
-    let data = 'd694' + normalizeComponent(addr, 160) + '80';
-    let hash = ethers.utils.keccak256(new Buffer(data, 'hex'));
-    return '0x' + hash.substr(26);
+    // Assumes nonce of address is 0
+    let hash = ethers.utils.keccak256(ethers.utils.concat(['0xd694', ethers.utils.padZeros(addr, 20), "0x80"]));
+    return ethers.utils.getAddress('0x' + hash.substr(26));
 }
 
 
