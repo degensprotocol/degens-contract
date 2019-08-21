@@ -408,7 +408,7 @@ async function doTest(spec, numTest, totalTests) {
                 token: action.token ? extraTokens[action.token].address : testTokenContract.address,
                 matchId: matchInfo.matchId,
                 amount: action.amount,
-                price: Math.floor(action.price * 10000000),
+                price: decodePrice(action.price),
                 direction: action.dir === 'invalid' ? 2 : action.dir === 'buy' ? 1 : 0,
                 expiry: Math.floor(startTime / 1000) + (action.expiryOffset === undefined ? 86400 : action.expiryOffset),
                 timestamp: Math.floor(startTime / 1000) + (action.timestampOffset === undefined ? -1 : action.timestampOffset),
@@ -488,7 +488,7 @@ async function doTest(spec, numTest, totalTests) {
         } else if (action.action === 'finalize') {
             let matchInfo = computeMatchInfo(match);
 
-            let price = Math.floor(action.price * 10000000);
+            let price = decodePrice(action.price);
 
             let sigs = [
                 await signFinalizationMessage(accountSigner.g1, degensContract.address, matchInfo.matchId, price),
@@ -660,6 +660,13 @@ function testTemplate(tmpl) {
 }
 
 
+
+
+function decodePrice(price) {
+    if (typeof(price) === 'number') return Math.floor(price * 10000000);
+    else if (typeof(price) === 'string') return parseInt(price);
+    else throw(`unexpected value for price: ${price}`);
+}
 
 
 
