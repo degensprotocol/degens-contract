@@ -158,8 +158,13 @@ def proveImpossible(params):
 
 
 proveImpossible({
-    'desc': 'exposureDelta must be -1, 0 or 1',
-    'exposureDelta': lambda s, x: s.add(x <= -2, x >= 2),
+    'desc': 'exposureDelta cannot be less than -1',
+    'exposureDelta': lambda s, x: s.add(x <= -2),
+})
+
+proveImpossible({
+    'desc': 'exposureDelta cannot be greater than 1',
+    'exposureDelta': lambda s, x: s.add(x >= 2),
 })
 
 proveImpossible({
