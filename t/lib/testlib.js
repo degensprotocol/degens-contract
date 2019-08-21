@@ -91,7 +91,7 @@ async function doTest(spec, numTest, totalTests) {
     let randVal = '0';
 
     let deterministicRandom = () => {
-        randVal = ethers.utils.keccak256(new Buffer(normalizeComponent(randVal, 256), 'hex'));
+        randVal = ethers.utils.keccak256(Buffer.from(normalizeComponent(randVal, 256), 'hex'));
         return randVal;
     };
 
@@ -718,20 +718,20 @@ function computeMatchInfo(match) {
         ordered[key] = match[key];
     });
 
-    let detailsHash = ethers.utils.keccak256(new Buffer(JSON.stringify(ordered)));
+    let detailsHash = ethers.utils.keccak256(Buffer.from(JSON.stringify(ordered)));
 
     let witness = ethers.utils.keccak256(
-                      new Buffer(normalizeComponent(detailsHash, 256) +
-                                 normalizeComponent(parseInt(match.recoveryTime), 256) +
-                                 normalizeComponent(parseInt(match.cancelPrice), 256), 'hex'));
+                      Buffer.from(normalizeComponent(detailsHash, 256) +
+                                  normalizeComponent(parseInt(match.recoveryTime), 256) +
+                                  normalizeComponent(parseInt(match.cancelPrice), 256), 'hex'));
 
     let graderAddresses = '';
     match.graders.forEach(g => graderAddresses += normalizeComponent(g, 256));
 
-    let content = new Buffer(normalizeComponent(witness, 256) +
-                             normalizeComponent(parseInt(match.graderQuorum), 256) +
-                             normalizeComponent(parseInt(match.graderFee), 256) +
-                             graderAddresses, 'hex');
+    let content = Buffer.from(normalizeComponent(witness, 256) +
+                              normalizeComponent(parseInt(match.graderQuorum), 256) +
+                              normalizeComponent(parseInt(match.graderFee), 256) +
+                              graderAddresses, 'hex');
 
     let matchId = ethers.utils.keccak256(content);
 
@@ -771,7 +771,7 @@ async function signFinalizationMessage(wallet, contractAddr, matchId, finalPrice
         details.finalPrice,
     ].join('');
 
-    msg = ethers.utils.keccak256(new Buffer(msg, 'hex'));
+    msg = ethers.utils.keccak256(Buffer.from(msg, 'hex'));
 
     let sig = await wallet.signMessage(ethers.utils.arrayify(msg));
 
