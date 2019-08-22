@@ -260,7 +260,7 @@ contract Degens {
             Order memory rightOrder = unpackOrder(matchId, token, packedRightOrders[i]);
 
             require(leftOrder.maker != rightOrder.maker, "DERR_SAME_MAKER");
-            require(rightOrder.direction == 1 - leftOrder.direction, "DERR_SAME_DIRECTION");
+            require(rightOrder.direction != leftOrder.direction, "DERR_SAME_DIRECTION");
 
 
             (uint leftMaxPosition, uint leftAmount) = computeMaxPosition(leftOrder);
@@ -694,11 +694,8 @@ contract Degens {
     }
 
     function computePriceWeightedAmounts(uint longAmount, uint shortAmount, uint price) private pure returns(uint, uint) {
-        uint totalLongAmount;
-        uint totalShortAmount;
-
-        totalLongAmount = longAmount + (safeMul(longAmount, MAX_PRICE - price) / price);
-        totalShortAmount = shortAmount + (safeMul(shortAmount, price) / (MAX_PRICE - price));
+        uint totalLongAmount = longAmount + (safeMul(longAmount, MAX_PRICE - price) / price);
+        uint totalShortAmount = shortAmount + (safeMul(shortAmount, price) / (MAX_PRICE - price));
 
         if (totalLongAmount > totalShortAmount) {
             return (totalShortAmount - shortAmount, shortAmount);
