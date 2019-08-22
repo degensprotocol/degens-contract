@@ -622,16 +622,28 @@ For the account performing the buy side of the trade:
 
 \begin{align*}
 Bal_{new} ={} & Bal_{old} \\
-      & + \left((-Position_{old} + min(0, Position_{new})) \times \frac{1e9 - Price}{1e9}\right) \\
-      & - \left((Position_{new} - max(0, Position_{old})) \times \frac{Price}{1e9}\right)
+      & + \begin{cases}
+              (-Position_{old} + min(0, Position_{new})) \times \frac{1e9 - Price}{1e9}  & \quad \text{if } Position_{old} < 0  \\
+              0 & \quad \text{if } Position_{old} >= 0  \\
+          \end{cases} \\
+      & - \begin{cases}
+              (Position_{new} - max(0, Position_{old})) \times \frac{Price}{1e9}  & \quad \text{if } Position_{new} > 0  \\
+              0 & \quad \text{if } Position_{new} <= 0  \\
+          \end{cases}
 \end{align*}
 
 And the sell side:
 
 \begin{align*}
 Bal_{new} ={} & Bal_{old} \\
-      & + \left((Position_{old} - max(0, Position_{new})) \times \frac{Price}{1e9}\right) \\
-      & - \left((-Position_{new} + min(0, Position_{old})) \times \frac{1e9 - Price}{1e9}\right)
+      & + \begin{cases}
+              (Position_{old} - max(0, Position_{new})) \times \frac{Price}{1e9}  & \quad \text{if } Position_{old} > 0 \\
+              0 & \quad \text{if } Position_{old} <= 0  \\
+          \end{cases} \\
+      & - \begin{cases}
+              (-Position_{new} + min(0, Position_{old})) \times \frac{1e9 - Price}{1e9}  & \quad \text{if } Position_{new} < 0 \\
+              0 & \quad \text{if } Position_{new} >= 0  \\
+          \end{cases} \\
 \end{align*}
 
 The intuition behind these equations is that an account's balance is debited for increasing the magnitude of a position and credited for reducing it. Since a position is being sold or purchased, the debit or credit amount depends on the price agreed upon for the trade.

@@ -795,14 +795,26 @@ Bal_{effective} = Bal_{account} +
 <p>For the account performing the buy side of the trade:</p>
 <span class="math display">\[\begin{align*}
 Bal_{new} ={} &amp; Bal_{old} \\
-      &amp; + \left((-Position_{old} + min(0, Position_{new})) \times \frac{1e9 - Price}{1e9}\right) \\
-      &amp; - \left((Position_{new} - max(0, Position_{old})) \times \frac{Price}{1e9}\right)
+      &amp; + \begin{cases}
+              (-Position_{old} + min(0, Position_{new})) \times \frac{1e9 - Price}{1e9}  &amp; \quad \text{if } Position_{old} &lt; 0  \\
+              0 &amp; \quad \text{if } Position_{old} &gt;= 0  \\
+          \end{cases} \\
+      &amp; - \begin{cases}
+              (Position_{new} - max(0, Position_{old})) \times \frac{Price}{1e9}  &amp; \quad \text{if } Position_{new} &gt; 0  \\
+              0 &amp; \quad \text{if } Position_{new} &lt;= 0  \\
+          \end{cases}
 \end{align*}\]</span>
 <p>And the sell side:</p>
 <span class="math display">\[\begin{align*}
 Bal_{new} ={} &amp; Bal_{old} \\
-      &amp; + \left((Position_{old} - max(0, Position_{new})) \times \frac{Price}{1e9}\right) \\
-      &amp; - \left((-Position_{new} + min(0, Position_{old})) \times \frac{1e9 - Price}{1e9}\right)
+      &amp; + \begin{cases}
+              (Position_{old} - max(0, Position_{new})) \times \frac{Price}{1e9}  &amp; \quad \text{if } Position_{old} &gt; 0 \\
+              0 &amp; \quad \text{if } Position_{old} &lt;= 0  \\
+          \end{cases} \\
+      &amp; - \begin{cases}
+              (-Position_{new} + min(0, Position_{old})) \times \frac{1e9 - Price}{1e9}  &amp; \quad \text{if } Position_{new} &lt; 0 \\
+              0 &amp; \quad \text{if } Position_{new} &gt;= 0  \\
+          \end{cases} \\
 \end{align*}\]</span>
 <p>The intuition behind these equations is that an account's balance is debited for increasing the magnitude of a position and credited for reducing it. Since a position is being sold or purchased, the debit or credit amount depends on the price agreed upon for the trade.</p>
 <p>If there are no preexisting positions, then both balances are decreased by the corresponding amounts necessary to cover the respective amounts at risk needed for the trade. However, if one or both of the parties have existing positions, and one or both of them are trading in an opposite direction to their positions, then the balances may increase. This is not always the case though since a single trade can close out an existing position (increasing balance) and additionally create an opposite position (decreasing balance).</p>
