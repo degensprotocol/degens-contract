@@ -2,11 +2,11 @@
 
 pragma solidity ^0.5.10;
 
-contract IERC20Token {
-    function balanceOf(address tokenOwner) public view returns (uint balance);
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-    function transfer(address to, uint tokens) public returns (bool success);
-    function transferFrom(address from, address to, uint tokens) public returns (bool success);
+interface IERC20Token {
+    function balanceOf(address tokenOwner) external view returns (uint balance);
+    function allowance(address tokenOwner, address spender) external view returns (uint remaining);
+    function transfer(address to, uint tokens) external returns (bool success);
+    function transferFrom(address from, address to, uint tokens) external returns (bool success);
 }
 
 contract Degens {
