@@ -327,8 +327,6 @@ contract Degens {
     }
 
     function claim(bytes32 witness, uint256 graderQuorum, uint256 graderFee, address[] calldata graders, uint32 finalPrice, uint256[2][] calldata sigs, uint256[] calldata targets) external {
-        require(finalPrice <= MAX_PRICE, "DERR_BAD_FINALPRICE");
-
         uint matchId = uint(keccak256(abi.encodePacked(witness, graderQuorum, graderFee, graders)));
 
         Match storage m = matches[matchId];
@@ -356,9 +354,14 @@ contract Degens {
 
             require(validated >= graderQuorum, "DERR_INSUFFICIENT_GRADERS");
 
+            bool waiveFees = (finalPrice & 0x80000000) != 0;
+            uint32 maskedPrice = finalPrice & 0x7fffffff;
+
             m.finalized = true;
-            m.finalPrice = finalPrice;
-            m.graderFee = uint32(graderFee);
+            m.finalPrice = maskedPrice;
+            m.graderFee = waiveFees ? 0 : uint32(graderFee);
+
+            require(m.finalPrice <= MAX_PRICE, "DERR_BAD_FINALPRICE");
 
             emit LogFinalizeMatch(matchId, finalPrice);
         }

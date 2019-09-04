@@ -87,4 +87,24 @@ testlib.testTemplate({
 })
 
 
+
+.test({
+  desc: 'waive fees at 100',
+  actions: [
+    { action: 'finalize', price: 100, waiveFees: true, targets: (c, p) => [c('main'), p('B'), p('C'), p('A')], },
+    { action: 'assert', balances: { A: 8162395, B: 10999999, C: 10837606 }, graderBalances: { g1: 0, g2: 0, g3: 0 }, positions: { A: 0, B: 0, C: 0 } },
+  ],
+})
+
+
+
+.test({
+  desc: 'waive fees at cancelPrice',
+  actions: [
+    { action: 'finalize', price: 50, waiveFees: true, targets: (c, p) => [c('main'), p('B'), p('C'), p('A')], },
+    { action: 'assert', balances: { A: 10221043, B: 10137931, C: 9641026 }, graderBalances: { g1: 0, g2: 0, g3: 0 }, positions: { A: 0, B: 0, C: 0 } },
+  ],
+})
+
+
 .run();

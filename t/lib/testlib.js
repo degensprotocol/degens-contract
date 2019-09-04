@@ -489,6 +489,7 @@ async function doTest(spec, numTest, totalTests) {
             let matchInfo = computeMatchInfo(match);
 
             let price = decodePrice(action.price);
+            if (action.waiveFees) price += 0x80000000;
 
             let sigs = [
                 await signFinalizationMessage(accountSigner.g1, degensContract.address, matchInfo.matchId, price),

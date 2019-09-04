@@ -120,6 +120,15 @@ testlib.testTemplate({
   ],
 })
 
+.test({
+  desc: 'bad price was signed, fees waived',
+  actions: [
+    { action: 'finalize', price: '1000000001', waiveFees: true, targets: (c, p) => [c('main'), p('A'), p('B'), p('C'), ],
+      expectError: 'DERR_BAD_FINALPRICE',
+    },
+    { action: 'assert', balances: { A: 8162395, B: 9275863, C: 8444446 }, positions: { A: -4117296, B: 1724136, C: 2393160 } },
+  ],
+})
 
 .test({
   desc: 'bad value for graderFee',
