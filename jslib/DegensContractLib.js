@@ -263,6 +263,30 @@ class Order {
             this.signature[1],
         ]));
     }
+
+
+
+    // Accessors
+
+    maker() { return this.fields.maker; }
+
+    taker() { return this.fields.taker; }
+
+    token() { return this.fields.token; }
+
+    matchId() { return this.fields.matchId; }
+
+    amount() { return ethers.utils.bigNumberify(this.fields.amount); }
+
+    price() { return parseInt(this.fields.price, 16); }
+
+    direction() { return parseInt(this.fields.direction, 16); }
+
+    expiry() { return parseInt(this.fields.expiry, 16); }
+
+    timestamp() { return parseInt(this.fields.timestamp, 16); }
+
+    orderGroup() { return this.fields.orderGroup; }
 }
 
 
