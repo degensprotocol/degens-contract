@@ -172,6 +172,8 @@ class Order {
             }, (err,result) => {
                 if (err) {
                     reject(err);
+                } else if (result.error) {
+                    reject(result.error.message);
                 } else { 
                     this.addSignature(packSignature(ethers.utils.splitSignature(result.result)));
                     resolve(true);
