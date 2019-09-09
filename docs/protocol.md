@@ -888,6 +888,8 @@ The fee is applied against the total amount to be claimed. This has the disadvan
 
 Charging the fees as a percentage of claimable amount at finalization time compensates the oracle fairly because they are assuming risk proprtional to the outstanding positions at finalization time. If users trade away their positions prior to finalization, this reduces the amount of risk the oracle assumes, so the fee should be less.
 
+If the `finalPrice` signed by the oracles has the highest order bit set (treated as a `uint32`) then fees will be waived. This is useful when a match is cancelled, since users generally don't expect to pay fees in these circumstances.
+
 ## Oracle Competition
 
 Since oracles are specified as an M-of-N multi-sig by the match creator, not all oracles need to report a result for a match in order for it to be finalized. The oracles that report will evenly split the fee. For example, 2 of 3 oracles may be required, in which case a match may be finalized with only 2, and each will take 50% of the grading fee. Although when calling `claim`, a participant *could* pass in all 3, this provides no benefit to the user, and increases gas costs. Because of this, oracles have an incentive to quickly create signed grading messages.
