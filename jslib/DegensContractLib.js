@@ -1,6 +1,8 @@
 const ethers = require('ethers');
 
 
+const MAX_PRICE = 1000000000;
+
 const tradeStatusLookupByNumber = [
     'INVALID',
     'OK',
@@ -315,10 +317,33 @@ function packSignature(sig) {
     return [sig.r, hexNormalize(msb, 1) + sig.s.substr(4)];
 }
 
+function encodeClaimTargets(targets) {
+    let output = [];
+
+    for (let t of targets) {
+        output.push(setMSB256(t.token));
+        for (let a of t.addrs) {
+            output.push(a);
+        }
+    }
+
+    return output;
+}
+
+function setMSB256(n) {
+    n = ethers.utils.padZeros(n, 32);
+    n[0] |= 128;
+    return ethers.utils.hexlify(n);
+}
+
 module.exports = {
+  MAX_PRICE,
   tradeStatusByNumber,
   tradeStatusByName,
   Order,
   hexNormalize,
   hexTruncate,
+  packSignature,
+  encodeClaimTargets,
+  setMSB256,
 };

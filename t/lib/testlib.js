@@ -375,7 +375,7 @@ async function doTest(spec, numTest, totalTests) {
     //degensContract.on('LogDebug', (b) => console.log("DBG", b));
 
 
-    let tokenAddrsCb = (name) => setMSB256(name === 'main' ? testTokenContract.address : extraTokens[name].address);
+    let tokenAddrsCb = (name) => DegensContractLib.setMSB256(name === 'main' ? testTokenContract.address : extraTokens[name].address);
     let playerAddrsCb = (name) => accountAddress[name];
 
 
@@ -476,7 +476,7 @@ async function doTest(spec, numTest, totalTests) {
             //console.log(makeInfoReadable(infoAfter));
 
             let positionDelta = infoAfter.positions[action.from].sub(infoBefore.positions[action.from]);
-            if (positionDelta.abs().gt(1000000000)) throw('large position change after matchOrder: ' + positionDelta.toString());
+            if (positionDelta.abs().gt(DegensContractLib.MAX_PRICE)) throw('large position change after matchOrder: ' + positionDelta.toString());
 
             if (process.env.VERBOSE) console.log('Position change after matchOrder: ' + positionDelta.toString());
         } else if (action.action === 'cancel') {
@@ -506,7 +506,7 @@ async function doTest(spec, numTest, totalTests) {
             if (action.targets) {
                 targets = action.targets(tokenAddrsCb, playerAddrsCb);
             } else {
-                targets = encodeClaimTargets([ { token: testTokenContract.address, addrs: playerNames.map(n => accountAddress[n]), } ]);
+                targets = DegensContractLib.encodeClaimTargets([ { token: testTokenContract.address, addrs: playerNames.map(n => accountAddress[n]), } ]);
             }
 
             let c = computeClaimComponents(match);
@@ -776,45 +776,8 @@ async function signFinalizationMessage(wallet, contractAddr, matchId, finalPrice
 
     let sig = await wallet.signMessage(ethers.utils.arrayify(msg));
 
-    return packSignature(ethers.utils.splitSignature(sig));
+    return DegensContractLib.packSignature(ethers.utils.splitSignature(sig));
 }
-
-
-function packSignature(sig) {
-    if (sig.s.length !== 66) throw('unexpected length for s');
-    let msb = parseInt(sig.s.substr(2,2), 16);
-    if ((msb & 128) !== 0) throw('most significant bit of s was set');
-    if (sig.v !== 27 && sig.v !== 28) throw('unexpected value for v');
-
-    if (sig.v === 28) msb |= 128;
-    return [sig.r, '0x' + normalizeComponent(msb, 8) + sig.s.substr(4)];
-}
-
-
-
-function encodeClaimTargets(targets) {
-    let output = [];
-
-    for (let t of targets) {
-        output.push(setMSB256(t.token));
-        for (let a of t.addrs) {
-            output.push(a);
-        }
-    }
-
-    return output;
-}
-
-
-function setMSB256(n) {
-    n = normalizeComponent(n, 256);
-    let msb = parseInt(n.substr(0, 2));
-    msb |= 128;
-    return '0x' + normalizeComponent(msb, 8) + n.substr(2);
-}
-
-
-
 
 
 
@@ -823,8 +786,6 @@ function computeContractAddress(addr) {
     let hash = ethers.utils.keccak256(ethers.utils.concat(['0xd694', ethers.utils.padZeros(addr, 20), "0x80"]));
     return ethers.utils.getAddress('0x' + hash.substr(26));
 }
-
-
 
 
 
