@@ -9,6 +9,7 @@ contract IERC20Token {
 
 contract DegensInterface {
     function testOrder(uint[4] calldata packed) external view returns(uint256, uint256);
+    function getCancelTimestamp(address account) external view returns(uint);
 }
 
 contract QueryDegens {
@@ -37,5 +38,18 @@ contract QueryDegens {
         }
 
         return output;
+    }
+
+    function queryAccounts(address degensAddress, address[] memory accounts, address[] memory tokens) public view returns (uint[] memory, uint[] memory) {
+        DegensInterface degens = DegensInterface(degensAddress);
+
+        uint[] memory balances = tokenBalancesAndApprovals(degensAddress, accounts, tokens);
+        uint[] memory cancelTimestamps = new uint[](accounts.length);
+
+        for (uint i = 0; i < accounts.length; i++) {
+            cancelTimestamps[i] = degens.getCancelTimestamp(accounts[i]);
+        }
+
+        return (balances, cancelTimestamps);
     }
 }
