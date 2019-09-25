@@ -13,7 +13,7 @@ contract DegensInterface {
 }
 
 contract QueryDegens {
-    function testOrderBatch(address degensAddress, uint[4][] memory orders) public view returns (uint[] memory, uint[] memory) {
+    function testOrderBatch(address degensAddress, uint[4][] memory orders) public view returns (uint, bytes32, uint[] memory, uint[] memory) {
         DegensInterface degens = DegensInterface(degensAddress);
 
         uint[] memory available = new uint[](orders.length);
@@ -23,10 +23,10 @@ contract QueryDegens {
             (available[i], filled[i]) = degens.testOrder(orders[i]);
         }
 
-        return (available, filled);
+        return (block.number, blockhash(block.number - 1), available, filled);
     }
 
-    function tokenBalancesAndApprovals(address degensAddress, address[] memory accounts, address[] memory tokens) public view returns (uint[] memory) {
+    function tokenBalancesAndApprovals(address degensAddress, address[] memory accounts, address[] memory tokens) private view returns (uint[] memory) {
         uint[] memory output = new uint[](accounts.length * tokens.length * 2);
 
         uint curr = 0;
@@ -40,7 +40,7 @@ contract QueryDegens {
         return output;
     }
 
-    function queryAccounts(address degensAddress, address[] memory accounts, address[] memory tokens) public view returns (uint[] memory, uint[] memory) {
+    function queryAccounts(address degensAddress, address[] memory accounts, address[] memory tokens) public view returns (uint, bytes32, uint[] memory, uint[] memory) {
         DegensInterface degens = DegensInterface(degensAddress);
 
         uint[] memory balances = tokenBalancesAndApprovals(degensAddress, accounts, tokens);
@@ -50,6 +50,6 @@ contract QueryDegens {
             cancelTimestamps[i] = degens.getCancelTimestamp(accounts[i]);
         }
 
-        return (balances, cancelTimestamps);
+        return (block.number, blockhash(block.number - 1), balances, cancelTimestamps);
     }
 }
