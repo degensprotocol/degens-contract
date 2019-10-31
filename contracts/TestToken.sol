@@ -115,12 +115,21 @@ contract TestToken is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    constructor() public {
+    constructor(uint256 chainId_) public {
         symbol = "TST";
         name = "Degens Test Token";
         decimals = 18;
         _totalSupply = 1000000 * 10**uint(decimals);
         balances[owner] = _totalSupply;
+
+        DOMAIN_SEPARATOR = keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256(bytes(name)),
+            keccak256(bytes(version)),
+            chainId_,
+            address(this)
+        ));
+
         emit Transfer(address(0), owner, _totalSupply);
     }
 
@@ -247,5 +256,44 @@ contract TestToken is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
         return ERC20Interface(tokenAddress).transfer(owner, tokens);
+    }
+
+
+
+
+    // The following code is adapted from DAI: https://github.com/makerdao/dss/blob/b1fdcfc9b2ab7961bf2ce7ab4008bfcec1c73a88/src/dai.sol#L114-L138
+
+    mapping (address => uint)                      public nonces;
+
+    string  public constant version  = "1";
+
+    // --- EIP712 niceties ---
+    bytes32 public DOMAIN_SEPARATOR;
+    // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
+    bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
+
+    // --- Approve by signature ---
+    function permit(address holder, address spender, uint256 nonce, uint256 expiry,
+                    bool allowed_, uint8 v, bytes32 r, bytes32 s) external
+    {
+        bytes32 digest =
+            keccak256(abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                keccak256(abi.encode(PERMIT_TYPEHASH,
+                                     holder,
+                                     spender,
+                                     nonce,
+                                     expiry,
+                                     allowed_))
+        ));
+
+        require(holder != address(0), "tst/invalid-address-0");
+        require(holder == ecrecover(digest, v, r, s), "tst/invalid-permit");
+        require(expiry == 0 || now <= expiry, "tst/permit-expired");
+        require(nonce == nonces[holder]++, "tst/invalid-nonce");
+        uint wad = allowed_ ? uint(-1) : 0;
+        allowed[holder][spender] = wad;
+        emit Approval(holder, spender, wad);
     }
 }

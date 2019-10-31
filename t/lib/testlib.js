@@ -151,6 +151,9 @@ async function doTest(spec, numTest, totalTests) {
     }
 
 
+    let networkInfo = await ethProvider.getNetwork();
+
+
     let degensContract, testTokenContract;
 
     {
@@ -160,14 +163,14 @@ async function doTest(spec, numTest, totalTests) {
 
     {
         let factory = new ethers.ContractFactory(testTokenAbi, testTokenBin, ethProvider.getSigner(0));
-        testTokenContract = await factory.deploy({ gasLimit: 6000000, });
+        testTokenContract = await factory.deploy(networkInfo.chainId, { gasLimit: 6000000, });
     }
 
     let extraTokens = {};
 
     let newExtraToken = async (name) => {
         let factory = new ethers.ContractFactory(testTokenAbi, testTokenBin, ethProvider.getSigner(0));
-        extraTokens[name] = await factory.deploy({ gasLimit: 6000000, });
+        extraTokens[name] = await factory.deploy(networkInfo.chainId, { gasLimit: 6000000, });
     };
 
 
