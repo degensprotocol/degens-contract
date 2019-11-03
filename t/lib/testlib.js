@@ -344,6 +344,8 @@ async function doTest(spec, numTest, totalTests) {
                         let expectedStatus = expect[i][1];
                         let actualStatus = DegensContractLib.tradeStatusByNumber(events[i].args.status);
                         if (expectedStatus !== actualStatus) throw(`unexpected LogTradeError reason: ${actualStatus}, expected ${expectedStatus}`);
+                    } else if (expect[i].length > 1) {
+                        expect[i][1](events[i], accountAddress);
                     }
                 } else {
                     for (let k of Object.keys(expect[i])) {

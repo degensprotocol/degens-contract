@@ -12,7 +12,18 @@ testlib.doTests([
     { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 60, orderId: 1, },
     { action: 'order', from: 'B', amount: 633, dir: 'sell', price: 40, orderId: 2, },
 
-    { action: 'matchOrders', from: 'C', leftOrderId: 1, rightOrderIds: [2], },
+    { action: 'matchOrders', from: 'C', leftOrderId: 1, rightOrderIds: [2],
+      expectLogs: [
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.B) throw(`unexpected maker in log`);
+        }],
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.A) throw(`unexpected maker in log`);
+        }],
+      ],
+    },
 
     { action: 'assert', balances: { A: 10000-633, B: 10000-633, C: 211 },
                         positions: { A: 633 + (633*40/60), B: -(633 + (633*40/60)), C: 0 } },
@@ -197,9 +208,58 @@ testlib.doTests([
 
     { action: 'assert', balances: { A: 10266, B: 9201, C: 9201 }, positions: { A: 0, B: 1332, C: -1332, } },
 
-    { action: 'matchOrders', from: 'C', leftOrderId: 1, rightOrderIds: [4], },
+    { action: 'matchOrders', from: 'C', leftOrderId: 1, rightOrderIds: [4],
+      expectLogs: [
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.B) throw(`unexpected maker in log`);
+        }],
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.A) throw(`unexpected maker in log`);
+        }],
+      ],
+    },
 
     { action: 'assert', balances: { A: 9800, B: 9608, C: 9260, }, positions: { A: 1165, B: 167, C: -1332, } },
+  ],
+},
+
+
+{
+  desc: "multi matchOrders",
+  actions: [
+    { action: 'deposit', from: 'A', amount: 10000, },
+    { action: 'deposit', from: 'B', amount: 10000, },
+    { action: 'deposit', from: 'C', amount: 10000, },
+
+    { action: 'order', from: 'A', amount: 10000, dir: 'buy', price: 45, orderId: 1, },
+    { action: 'order', from: 'B', amount: 1000, dir: 'sell', price: 35, orderId: 2, },
+    { action: 'order', from: 'B', amount: 2000, dir: 'sell', price: 35, orderId: 3, },
+
+    { action: 'matchOrders', from: 'C', leftOrderId: 1, rightOrderIds: [2, 3],
+      expectLogs: [
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.B) throw(`unexpected maker in log`);
+        }],
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.A) throw(`unexpected maker in log`);
+        }],
+
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.B) throw(`unexpected maker in log`);
+        }],
+        ['LogTrade', (l, addrs) => {
+            if (l.args.takerAccount !== addrs.C) throw(`unexpected taker in log`);
+            if (l.args.makerAccount !== addrs.A) throw(`unexpected maker in log`);
+        }],
+      ],
+    },
+
+    { action: 'assert', balances: { A: 7926, B: 7003, C: 10461, }, positions: { A: 4610, B: -4609, C: -1, } },
   ],
 },
 

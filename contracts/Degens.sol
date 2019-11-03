@@ -241,7 +241,8 @@ contract Degens {
 
             if (t.status == TradeStatus.OK) {
                 applyTradePositions(o, t);
-                applyTrade(o, t);
+                applyTradeBalances(o, t);
+                applyTradeLog(o, t);
                 amountRemaining = safeSub(amountRemaining, t.takerAmount);
             } else {
                 emit LogTradeError(msg.sender, o.maker, o.matchId, o.token, o.fillHash, uint16(t.status));
@@ -303,14 +304,18 @@ contract Degens {
             if (takerBalanceDelta < 0) adjustBalance(leftOrder.token, msg.sender, takerBalanceDelta);
 
             if (leftTrade.shortBalanceDelta + leftTrade.longBalanceDelta < rightTrade.shortBalanceDelta + rightTrade.longBalanceDelta) {
-                applyTrade(leftOrder, leftTrade);
-                applyTrade(rightOrder, rightTrade);
+                applyTradeBalances(leftOrder, leftTrade);
+                applyTradeBalances(rightOrder, rightTrade);
             } else {
-                applyTrade(rightOrder, rightTrade);
-                applyTrade(leftOrder, leftTrade);
+                applyTradeBalances(rightOrder, rightTrade);
+                applyTradeBalances(leftOrder, leftTrade);
             }
 
             if (takerBalanceDelta > 0) adjustBalance(leftOrder.token, msg.sender, takerBalanceDelta);
+
+
+            applyTradeLog(rightOrder, rightTrade);
+            applyTradeLog(leftOrder, leftTrade);
         }
     }
 
@@ -430,7 +435,16 @@ contract Degens {
         }
     }
 
-    function applyTrade(Order memory o, Trade memory t) private {
+    function applyTradePositions(Order memory o, Trade memory t) private {
+        assert(t.status == TradeStatus.OK);
+
+        Match storage m = matches[o.matchId];
+
+        m.positions[t.longAddr][o.token] = t.newLongPosition;
+        m.positions[t.shortAddr][o.token] = t.newShortPosition;
+    }
+
+    function applyTradeBalances(Order memory o, Trade memory t) private {
         assert(t.status == TradeStatus.OK);
 
         if (t.longBalanceDelta < t.shortBalanceDelta) {
@@ -442,17 +456,10 @@ contract Degens {
         }
 
         filledAmounts[o.fillHash] += (o.direction == 0 ? t.shortAmount : t.longAmount);
-
-        emit LogTrade(msg.sender, o.maker, o.matchId, o.token, o.fillHash, o.direction, o.price, t.longAmount, t.newLongPosition, t.shortAmount, t.newShortPosition, t.longBalanceDelta, t.shortBalanceDelta);
     }
 
-    function applyTradePositions(Order memory o, Trade memory t) private {
-        assert(t.status == TradeStatus.OK);
-
-        Match storage m = matches[o.matchId];
-
-        m.positions[t.longAddr][o.token] = t.newLongPosition;  
-        m.positions[t.shortAddr][o.token] = t.newShortPosition;
+    function applyTradeLog(Order memory o, Trade memory t) private {
+        emit LogTrade(msg.sender, o.maker, o.matchId, o.token, o.fillHash, o.direction, o.price, t.longAmount, t.newLongPosition, t.shortAmount, t.newShortPosition, t.longBalanceDelta, t.shortBalanceDelta);
     }
 
     function processClaims(uint matchId, uint256[] memory targets) private {
