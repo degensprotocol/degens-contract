@@ -711,9 +711,18 @@ Some notes regarding `matchOrders`:
 
 The contract emits events (solidity-style logs) in most situations.
 
-* In a successful `trade` or `matchOrders` function call it will emit either a `LogTrade` or a `LogTradeError` for each one of the `packedOrders` or `packedRightOrders`, up until `amount` or the `leftOrder` fillable amount is exhausted.
-* In a successful `claim`, `LogFinalizeMatch` will be emitted if the match was not previously finalized. Every account address in the [claim targets](#claim-targets) that has a winning position will have an associated `LogClaim` emitted. `claimFinalized` is the same, except it never emits `LogFinalizeMatch`.
-* Successful `cancel` and `cancelAll` function calls will emit `LogCancel` or `LogCancelAll` events respectively
+For requests types that can execute multiple actions, a `LogRequestXYZ` log is issued before any other logs. This is used for tracking which of the following logs belong to each request:
+
+| Event name | Description |
+|:-----|:-------------------------------------------------|
+| LogRequestTrade | `trade()` has been invoked on the contract |
+| LogRequestMatchOrders | `matchOrders()` has been invoked on the contract |
+| LogRequestClaim | `claim()` or `claimFinalized()` has been invoked on the contract |
+| LogRequestRecoverFunds | `recoverFunds()` has been invoked on the contract |
+
+Note that `cancel()` and `cancelAll()` do not emit `LogRequestXYZ` logs since they never execute multiple actions so emiting this event would waste gas.
+
+After the `LogRequestXYZ` (if any) was emitted, subsequent action logs are emitted:
 
 | Event name | Description |
 |:-----|:-------------------------------------------------|
@@ -723,6 +732,10 @@ The contract emits events (solidity-style logs) in most situations.
 | LogCancel | An [order group](#order-group-cancellation) has been cancelled, cancelling one or more orders. Note that this logs all the fields required to compute the [fill hash](#fill-hash) |
 | LogCancelAll | A bulk [timestamp cancellation](#timestamp-cancellation) was issued for an `account` |
 | LogFinalizeMatch | A match was finalized, allowing users to [claim](#claim) their positions |
+
+* In a successful `trade` or `matchOrders` function call it will emit either a `LogTrade` or a `LogTradeError` for each one of the `packedOrders` or `packedRightOrders`, up until `amount` or the `leftOrder` fillable amount is exhausted.
+* In a successful `claim`, `LogFinalizeMatch` will be emitted if the match was not previously finalized. Every account address in the [claim targets](#claim-targets) that has a winning position will have an associated `LogClaim` emitted. `claimFinalized` is the same, except it never emits `LogFinalizeMatch`.
+* Successful `cancel` and `cancelAll` function calls will emit `LogCancel` or `LogCancelAll` events respectively
 
 
 ## Trade Status

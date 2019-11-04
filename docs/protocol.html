@@ -862,11 +862,39 @@ Bal_{new} ={} &amp; Bal_{old} \\
 </ul>
 <h2 id="event-logs">Event Logs</h2>
 <p>The contract emits events (solidity-style logs) in most situations.</p>
-<ul>
-<li>In a successful <code>trade</code> or <code>matchOrders</code> function call it will emit either a <code>LogTrade</code> or a <code>LogTradeError</code> for each one of the <code>packedOrders</code> or <code>packedRightOrders</code>, up until <code>amount</code> or the <code>leftOrder</code> fillable amount is exhausted.</li>
-<li>In a successful <code>claim</code>, <code>LogFinalizeMatch</code> will be emitted if the match was not previously finalized. Every account address in the <a href="#claim-targets">claim targets</a> that has a winning position will have an associated <code>LogClaim</code> emitted. <code>claimFinalized</code> is the same, except it never emits <code>LogFinalizeMatch</code>.</li>
-<li>Successful <code>cancel</code> and <code>cancelAll</code> function calls will emit <code>LogCancel</code> or <code>LogCancelAll</code> events respectively</li>
-</ul>
+<p>For requests types that can execute multiple actions, a <code>LogRequestXYZ</code> log is issued before any other logs. This is used for tracking which of the following logs belong to each request:</p>
+<table style="width:81%;">
+<colgroup>
+<col width="9%" />
+<col width="70%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Event name</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">LogRequestTrade</td>
+<td align="left"><code>trade()</code> has been invoked on the contract</td>
+</tr>
+<tr class="even">
+<td align="left">LogRequestMatchOrders</td>
+<td align="left"><code>matchOrders()</code> has been invoked on the contract</td>
+</tr>
+<tr class="odd">
+<td align="left">LogRequestClaim</td>
+<td align="left"><code>claim()</code> or <code>claimFinalized()</code> has been invoked on the contract</td>
+</tr>
+<tr class="even">
+<td align="left">LogRequestRecoverFunds</td>
+<td align="left"><code>recoverFunds()</code> has been invoked on the contract</td>
+</tr>
+</tbody>
+</table>
+<p>Note that <code>cancel()</code> and <code>cancelAll()</code> do not emit <code>LogRequestXYZ</code> logs since they never execute multiple actions so emiting this event would waste gas.</p>
+<p>After the <code>LogRequestXYZ</code> (if any) was emitted, subsequent action logs are emitted:</p>
 <table style="width:81%;">
 <colgroup>
 <col width="9%" />
@@ -905,6 +933,11 @@ Bal_{new} ={} &amp; Bal_{old} \\
 </tr>
 </tbody>
 </table>
+<ul>
+<li>In a successful <code>trade</code> or <code>matchOrders</code> function call it will emit either a <code>LogTrade</code> or a <code>LogTradeError</code> for each one of the <code>packedOrders</code> or <code>packedRightOrders</code>, up until <code>amount</code> or the <code>leftOrder</code> fillable amount is exhausted.</li>
+<li>In a successful <code>claim</code>, <code>LogFinalizeMatch</code> will be emitted if the match was not previously finalized. Every account address in the <a href="#claim-targets">claim targets</a> that has a winning position will have an associated <code>LogClaim</code> emitted. <code>claimFinalized</code> is the same, except it never emits <code>LogFinalizeMatch</code>.</li>
+<li>Successful <code>cancel</code> and <code>cancelAll</code> function calls will emit <code>LogCancel</code> or <code>LogCancelAll</code> events respectively</li>
+</ul>
 <h2 id="trade-status">Trade Status</h2>
 <p>The <code>status</code> field of <code>LogTradeError</code> indicates why a trade failed. It will be one of the following enum values (except <code>INVALID</code> or <code>OK</code>). <code>LogTrade</code> does not include a <code>status</code> field since the status is always <code>OK</code>.</p>
 <table style="width:97%;">
