@@ -26,6 +26,11 @@ contract Degens {
 
     // Events
 
+    event LogRequestTrade(address indexed sender);
+    event LogRequestMatchOrders(address indexed sender);
+    event LogRequestClaim(address indexed sender);
+    event LogRequestRecoverFunds(address indexed sender);
+
     event LogTrade(
         address indexed takerAccount,
         address indexed makerAccount,
@@ -225,6 +230,8 @@ contract Degens {
     }
 
     function trade(uint amount, uint expiry, uint matchId, address token, uint[4][] calldata packedOrders) external {
+        emit LogRequestTrade(msg.sender);
+
         if (expiry != 0 && block.timestamp >= expiry) {
             emit LogTradeError(msg.sender, address(0), matchId, token, 0, uint16(TradeStatus.TRADE_EXPIRED));
             return;
@@ -253,6 +260,8 @@ contract Degens {
     }
 
     function matchOrders(uint matchId, address token, uint[4] calldata packedLeftOrder, uint[4][] calldata packedRightOrders) external {
+        emit LogRequestMatchOrders(msg.sender);
+
         require(packedRightOrders.length > 0, "DERR_EMPTY_PACKEDRIGHTORDERS");
 
         Order memory leftOrder = unpackOrder(matchId, token, packedLeftOrder);
@@ -332,6 +341,8 @@ contract Degens {
     }
 
     function claim(bytes32 witness, uint256 graderQuorum, uint256 graderFee, address[] calldata graders, uint32 finalPrice, uint256[2][] calldata sigs, uint256[] calldata targets) external {
+        emit LogRequestClaim(msg.sender);
+
         uint matchId = uint(keccak256(abi.encodePacked(witness, graderQuorum, graderFee, graders)));
 
         Match storage m = matches[matchId];
@@ -375,6 +386,8 @@ contract Degens {
     }
 
     function claimFinalized(uint matchId, uint256[] calldata targets) external {
+        emit LogRequestClaim(msg.sender);
+
         Match storage m = matches[matchId];
 
         require(m.finalized, "DERR_MATCH_NOT_FINALIZED");
@@ -383,6 +396,8 @@ contract Degens {
     }
 
     function recoverFunds(uint256 detailsHash, uint256 recoveryTime, uint256 cancelPrice, uint256 graderQuorum, uint256 graderFee, address[] calldata graders) external {
+        emit LogRequestRecoverFunds(msg.sender);
+
         bytes32 witness = keccak256(abi.encodePacked(detailsHash, recoveryTime, cancelPrice));
         uint matchId = uint(keccak256(abi.encodePacked(witness, graderQuorum, graderFee, graders)));
 

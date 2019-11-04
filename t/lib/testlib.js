@@ -331,6 +331,19 @@ async function doTest(spec, numTest, totalTests) {
                 for (let e of events) console.log(`${e.event} ` + JSON.stringify(e.args, null, 4));
             }
 
+            if (['trade', 'matchOrders', 'finalize', 'claim-finalized', 'recover-funds'].find(a => a === action.action)) {
+                if (events.length < 1) throw(`no logs found for ${action.action} action`);
+                let firstLog = events.shift();
+                if ((action.action === 'trade' && firstLog.event !== 'LogRequestTrade') ||
+                    (action.action === 'matchOrders' && firstLog.event !== 'LogRequestMatchOrders') ||
+                    (action.action === 'finalize' && firstLog.event !== 'LogRequestClaim') ||
+                    (action.action === 'claim-finalized' && firstLog.event !== 'LogRequestClaim') ||
+                    (action.action === 'recover-funds' && firstLog.event !== 'LogRequestRecoverFunds')
+                   ) {
+                    throw(`unexpected requestType: ${action.action} / ${firstLog.event}`);
+                }
+            }
+
             if (events.length !== expect.length) {
                 console.log("EVENTS: ", events);
                 throw(`unexpected number of logs. saw ${events.length}, expected ${expect.length}`);
