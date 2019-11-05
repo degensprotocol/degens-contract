@@ -46,6 +46,7 @@ function tradeStatusByName(n) {
 const domainSchema = [
     { name: "name", type: "string" },
     { name: "version", type: "string" },
+    { name: "chainId", type: "uint256" },
     { name: "verifyingContract", type: "address" },
 ];
 
@@ -112,12 +113,13 @@ class Order {
     }
 
 
-    computeHash(contractAddress) {
+    computeHash(contractAddress, chainId) {
         let domainHash = ethers.utils.keccak256(
             ethers.utils.concat([
-                ethers.utils.keccak256(Buffer.from('EIP712Domain(string name,string version,address verifyingContract)')),
+                ethers.utils.keccak256(Buffer.from('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')),
                 ethers.utils.keccak256(Buffer.from('Degens')),
                 ethers.utils.keccak256(Buffer.from('1.0')),
+                hexNormalize(chainId, 32),
                 hexNormalize(contractAddress, 32),
             ])
         );
@@ -149,7 +151,7 @@ class Order {
         return hash;
     }
 
-    _buildTypedData(contractAddress) {
+    _buildTypedData(contractAddress, chainId) {
         return {
             types: {
                 EIP712Domain: domainSchema,
@@ -158,6 +160,7 @@ class Order {
             domain: {
                 name: "Degens",
                 version: "1.0",
+                chainId,
                 verifyingContract: hexNormalize(contractAddress, 20),
             },
             primaryType: "Order",
@@ -165,11 +168,11 @@ class Order {
         };
     }
 
-    signWithProviderTypedData(provider, contractAddress) {
+    signWithProviderTypedData(provider, contractAddress, chainId) {
         return new Promise((resolve, reject) => {
             provider.sendAsync({
                 method: "eth_signTypedData_v3",
-                params: [this.fields.maker, JSON.stringify(this._buildTypedData(contractAddress))],
+                params: [this.fields.maker, JSON.stringify(this._buildTypedData(contractAddress, chainId))],
                 from: this.fields.maker,
             }, (err,result) => {
                 if (err) {
@@ -184,21 +187,21 @@ class Order {
         });
     }
 
-    async signWithProviderGanache(provider, contractAddress) {
-        let sig = await provider.send("eth_signTypedData", [this.fields.maker, this._buildTypedData(contractAddress)]);
+    async signWithProviderGanache(provider, contractAddress, chainId) {
+        let sig = await provider.send("eth_signTypedData", [this.fields.maker, this._buildTypedData(contractAddress, chainId)]);
         this.addSignature(packSignature(ethers.utils.splitSignature(sig)));
     }
 
-    async signWithProviderLegacy(wallet, contractAddress) {
-        let hash = this.computeHash(contractAddress);
+    async signWithProviderLegacy(wallet, contractAddress, chainId) {
+        let hash = this.computeHash(contractAddress, chainId);
         let flatSig = await wallet.signMessage(ethers.utils.arrayify(hash));
         this.addSignature(packSignature(ethers.utils.splitSignature(flatSig)), true);
     }
 
-    signWithPrivateKey(privateKey, contractAddress) {
+    signWithPrivateKey(privateKey, contractAddress, chainId) {
         let signingKey = new ethers.utils.SigningKey(privateKey);
         if (hexNormalize(signingKey.address, 20) !== this.fields.maker) throw("private key's address does not match maker field");
-        let hash = this.computeHash(contractAddress);
+        let hash = this.computeHash(contractAddress, chainId);
         let signature = signingKey.signDigest(hash);
         this.addSignature(packSignature(signature));
     }

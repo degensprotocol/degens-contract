@@ -33,6 +33,7 @@ const nullAddress = '0x0000000000000000000000000000000000000000';
 const nullBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const maxBytes32 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 const ganacheMnemonic = 'anxiety permit surge method actual baby this helmet travel divert child latin';
+const ganacheChainId = 17;
 
 
 
@@ -145,6 +146,7 @@ async function doTest(spec, numTest, totalTests) {
         let ganache = ganacheCli.provider({
             mnemonic: ganacheMnemonic,
             time: startTime,
+            network_id: ganacheChainId,
         });
 
         ethProvider = new ethers.providers.Web3Provider(ganache);
@@ -438,10 +440,13 @@ async function doTest(spec, numTest, totalTests) {
             if (orders[action.orderId]) throw(`orderId already set: ${action.orderId}`);
             orders[action.orderId] = new DegensContractLib.Order(orderArgs);
 
+            let chainId = ganacheChainId;
+            if (action.chainId !== undefined) chainId = action.chainId;
+
             if (action.legacySig) {
-                await orders[action.orderId].signWithProviderLegacy(accountSigner[action.from], degensContract.address);
+                await orders[action.orderId].signWithProviderLegacy(accountSigner[action.from], degensContract.address, chainId);
             } else {
-                await orders[action.orderId].signWithProviderGanache(ethProvider, degensContract.address);
+                await orders[action.orderId].signWithProviderGanache(ethProvider, degensContract.address, chainId);
             }
 
             executionPackedOrders[action.orderId] = orders[action.orderId].asExecutionPacked();

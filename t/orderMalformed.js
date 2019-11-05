@@ -40,6 +40,20 @@ testlib.doTests([
 },
 
 {
+  desc: "bad chainId",
+  actions: [
+    { action: 'deposit', from: 'A', amount: 10000, },
+    { action: 'deposit', from: 'B', amount: 10000, },
+
+    { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 40, orderId: 1, chainId: 1, },
+
+    { action: 'trade', from: 'B', orderIds: [1], amount: 500, expectError: 'DERR_INVALID_ORDER_SIGNATURE', },
+
+    { action: 'assert', balances: { A: 10000, B: 10000, }, positions: { A: 0, B: 0, } },
+  ],
+},
+
+{
   desc: "bad price",
   actions: [
     { action: 'deposit', from: 'A', amount: 10000, },

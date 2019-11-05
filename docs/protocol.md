@@ -146,6 +146,8 @@ This somewhat cumbersome method of computing the matchId is so that the smallest
     * After the first participant has finalized the match, subsequent claims can be done with `claimFinalized` to reduce calldata costs.
 * In case the graders do not create signed finalization messages for some reason, participants can wait until **recoveryTime**, at which point the contract can be finalized at **cancelPrice**. To do this, anybody can submit the **detailsHash**, **recoveryTime**, **cancelPrice**, **graderQuorum**, **graderFee**, and **graders** addresses. Note that the **witness** and **matchId** fields are not passed in, since the contract computes this itself.
 
+Note: Because neither `eventId` not `matchId` embeds a contract address or a `chainId`, they can be used across multiple ethereum forks/testnets. This is not true for orders, however.
+
 
 ### Point Spreads
 
@@ -273,13 +275,12 @@ Orders are hashed using the EIP712 scheme that gives wallets some information ab
 
 The domain used by the Degens contract is given by the following specification:
 
-    EIP712Domain(string name,string version,address verifyingContract)
+    EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)
 
 * The protocol name is `"Degens"`
 * The version is `"1.0"`
+* The chainId is `1` for the Ethereum mainnet
 * The verifyingContract is the deployed contract address
-
-Note: Because signatures aren't specific to particular chain IDs, it is important that Degens contracts are always deployed at distinct addresses.
 
 #### EIP712 Order Schema
 
@@ -865,7 +866,7 @@ A grader signature is a signature of the concatenation of the address of the Deg
 
 In the `claim` method, an array of [packed signatures](#signature-packing) must be passed in. This array of signatures must be the same length as the number of graders specified in the match JSON. Because not all oracles need to report, if a signature is missing for a particular grader it should be passed in as all zero bytes, in which case the signature will be skipped. After verifying all signatures (except ones that are all-zeros), the contract will ensure that at least `graderQuorum` signatures have been verified.
 
-Note: Because grader signatures aren't specific to particular chain IDs, it is important that Degens contracts are always deployed at distinct addresses.
+Note: Unlike order signatures, grader signatures are not specific to particular chain IDs. This is so that in the event of a network fork, users can claim their winnings from existing positions on the new fork. This also allows an oracle to service multiple ethereum networks simultaneously. If the oracle is [bonded](#oracle-bonding), it should pre-specify which networks it is liable for.
 
 
 ### Claim Targets

@@ -17,10 +17,11 @@ contract Degens {
     uint private constant MAX_PRICE = 1000000000;
 
     bytes32 private constant EIP712_DOMAIN = keccak256(abi.encode(
-        keccak256("EIP712Domain(string name,string version,address verifyingContract)"),
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
         keccak256("Degens"),
         keccak256("1.0"),
-        address(0xcf37ae5ee9d0E686c1fC586E32BC5a806A9029A5) // set at deployment
+        uint256(17), // set chainId at deployment
+        address(0xcf37ae5ee9d0E686c1fC586E32BC5a806A9029A5) // set contractAddr at deployment
     ));
 
 
