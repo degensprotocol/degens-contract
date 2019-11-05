@@ -146,7 +146,7 @@ This somewhat cumbersome method of computing the matchId is so that the smallest
     * After the first participant has finalized the match, subsequent claims can be done with `claimFinalized` to reduce calldata costs.
 * In case the graders do not create signed finalization messages for some reason, participants can wait until **recoveryTime**, at which point the contract can be finalized at **cancelPrice**. To do this, anybody can submit the **detailsHash**, **recoveryTime**, **cancelPrice**, **graderQuorum**, **graderFee**, and **graders** addresses. Note that the **witness** and **matchId** fields are not passed in, since the contract computes this itself.
 
-Note: Because neither `eventId` not `matchId` embeds a contract address or a `chainId`, they can be used across multiple ethereum forks/testnets. This is not true for orders, however.
+Note: Because neither `eventId` not `matchId` embeds a contract address or a `chainId`, they can be used across multiple ethereum forks/testnets. This is not true for orders, however, which embed both to prevent replay attacks of user orders across chains (see the [EIP712 Domain details](#eip712-domain)).
 
 
 ### Point Spreads
@@ -866,7 +866,7 @@ A grader signature is a signature of the concatenation of the address of the Deg
 
 In the `claim` method, an array of [packed signatures](#signature-packing) must be passed in. This array of signatures must be the same length as the number of graders specified in the match JSON. Because not all oracles need to report, if a signature is missing for a particular grader it should be passed in as all zero bytes, in which case the signature will be skipped. After verifying all signatures (except ones that are all-zeros), the contract will ensure that at least `graderQuorum` signatures have been verified.
 
-Note: Unlike order signatures, grader signatures are not specific to particular chain IDs. This is so that in the event of a network fork, users can claim their winnings from existing positions on the new fork. This also allows an oracle to service multiple ethereum networks simultaneously. If the oracle is [bonded](#oracle-bonding), it should pre-specify which networks it is liable for.
+Note: Unlike order signatures, grader signatures are not specific to particular chain IDs. This is so that in the event of a network fork, users can claim their winnings from existing positions on the new fork. However, grader signatures do embed the contract address, so can only be used across chains with the same Degens contract address.
 
 
 ### Claim Targets
