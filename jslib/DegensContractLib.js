@@ -164,7 +164,18 @@ class Order {
                 verifyingContract: hexNormalize(contractAddress, 20),
             },
             primaryType: "Order",
-            message: this.fields,
+            message: {
+                maker: this.fields.maker,
+                taker: this.fields.taker,
+                token: this.fields.token,
+                matchId: ethers.utils.bigNumberify(this.fields.matchId).toString(),
+                amount: ethers.utils.bigNumberify(this.fields.amount).toString(),
+                price: ethers.utils.bigNumberify(this.fields.price).toString(),
+                direction: ethers.utils.bigNumberify(this.fields.direction).toString(),
+                expiry: ethers.utils.bigNumberify(this.fields.expiry).toString(),
+                timestamp: ethers.utils.bigNumberify(this.fields.timestamp).toString(),
+                orderGroup: ethers.utils.bigNumberify(this.fields.orderGroup).toString(),
+            },
         };
     }
 
