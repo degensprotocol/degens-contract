@@ -179,23 +179,13 @@ class Order {
         };
     }
 
-    signWithProviderTypedData(provider, contractAddress, chainId) {
-        return new Promise((resolve, reject) => {
-            provider.sendAsync({
-                method: "eth_signTypedData_v3",
-                params: [this.fields.maker, JSON.stringify(this._buildTypedData(contractAddress, chainId))],
-                from: this.fields.maker,
-            }, (err,result) => {
-                if (err) {
-                    reject(err);
-                } else if (result.error) {
-                    reject(result.error.message);
-                } else { 
-                    this.addSignature(packSignature(ethers.utils.splitSignature(result.result)));
-                    resolve(true);
-                }
-            });
-        });
+    async signWithProviderTypedData(provider, contractAddress, chainId) {
+        let result = await provider.send(
+                               'eth_signTypedData_v3',
+                               [this.fields.maker, JSON.stringify(this._buildTypedData(contractAddress, '' + chainId))]
+                           );
+
+        this.addSignature(packSignature(ethers.utils.splitSignature(result)));
     }
 
     async signWithProviderGanache(provider, contractAddress, chainId) {
