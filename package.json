@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "ethers": "^4.0.7",
-    "ganache-cli": "^6.4.3",
+    "ganache-cli": "^6.8.1",
     "waitforsocket": "^0.1.1"
   }
 }
