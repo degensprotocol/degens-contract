@@ -57,3 +57,6 @@ render_coverage_report:
 
 coverage: export USE_SOL_COVERAGE=1
 coverage: build_coverage run_tests render_coverage_report
+
+profiler: export USE_SOL_PROFILER=1
+profiler: build_coverage run_tests render_coverage_report
