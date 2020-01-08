@@ -147,6 +147,9 @@ async function doTest(spec, numTest, totalTests) {
             mnemonic: ganacheMnemonic,
             time: startTime,
             network_id: ganacheChainId,
+            hardfork: process.env.HARDFORK || undefined,
+            debug: process.env.DUMPOPCODES ? true : undefined,
+            logger: process.env.DUMPOPCODES ? console : undefined,
         });
 
         ethProvider = new ethers.providers.Web3Provider(ganache);
