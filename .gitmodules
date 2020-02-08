@@ -1,0 +1,3 @@
+[submodule "jslib"]
+	path = jslib
+	url = git@github.com:degensprotocol/degens-jslib.git

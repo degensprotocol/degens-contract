@@ -22,6 +22,10 @@ The protocol is described in full detail in [our documentation](https://degenspr
 
 Install the `solc` [solidity compiler](https://github.com/ethereum/solidity/releases) somewhere in your path (`0.5.10` or later).
 
+Checkout the submodules:
+
+    git submodule update --init
+
 Make sure you have a recent `node` installed (tested with version `8.10.0`).
 
 Install the npm dependencies:
