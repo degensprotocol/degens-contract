@@ -45,7 +45,7 @@ testlib.doTests([
     { action: 'deposit', from: 'A', amount: 10000, },
     { action: 'deposit', from: 'B', amount: 10000, },
 
-    { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 40, orderId: 1, chainId: 1, },
+    { action: 'order', from: 'A', amount: 1000, dir: 'buy', price: 40, orderId: 1, chainId: 2, },
 
     { action: 'trade', from: 'B', orderIds: [1], amount: 500, expectError: 'DERR_INVALID_ORDER_SIGNATURE', },
 

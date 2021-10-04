@@ -33,7 +33,7 @@ const nullAddress = '0x0000000000000000000000000000000000000000';
 const nullBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const maxBytes32 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 const ganacheMnemonic = 'anxiety permit surge method actual baby this helmet travel divert child latin';
-const ganacheChainId = 17;
+const ganacheChainId = 1;
 
 
 
@@ -146,7 +146,7 @@ async function doTest(spec, numTest, totalTests) {
         let ganache = ganacheCli.provider({
             mnemonic: ganacheMnemonic,
             time: startTime,
-            network_id: ganacheChainId,
+            chainId: ganacheChainId,
             hardfork: process.env.HARDFORK || undefined,
             debug: process.env.DUMPOPCODES ? true : undefined,
             logger: process.env.DUMPOPCODES ? console : undefined,

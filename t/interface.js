@@ -15,7 +15,7 @@ let payable = {
 
 
 for(let e of testlib.degensAbi) {
-    if (e.type === 'function' && !e.constant) {
+    if (e.type === 'function' && !e.constant && !e.stateMutability === 'view') {
         if (!external[e.name]) throw(`Unexpected non-constant entry in external interface: ${e.name}`);
     }
 

@@ -1,6 +1,6 @@
 // Original version from: https://github.com/bokkypoobah/Tokens/blob/master/contracts/FixedSupplyToken.sol
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.6;
 
 // ----------------------------------------------------------------------------
 // 'FIXED' 'Example Fixed Supply Token' token contract
@@ -43,13 +43,13 @@ library SafeMath {
 // ERC Token Standard #20 Interface
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
 // ----------------------------------------------------------------------------
-contract ERC20Interface {
-    function totalSupply() public view returns (uint);
-    function balanceOf(address tokenOwner) public view returns (uint balance);
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-    function transfer(address to, uint tokens) public returns (bool success);
-    function approve(address spender, uint tokens) public returns (bool success);
-    function transferFrom(address from, address to, uint tokens) public returns (bool success);
+interface ERC20Interface {
+    function totalSupply() external view returns (uint);
+    function balanceOf(address tokenOwner) external view returns (uint balance);
+    function allowance(address tokenOwner, address spender) external view returns (uint remaining);
+    function transfer(address to, uint tokens) external returns (bool success);
+    function approve(address spender, uint tokens) external returns (bool success);
+    function transferFrom(address from, address to, uint tokens) external returns (bool success);
 
     event Transfer(address indexed from, address indexed to, uint tokens);
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
@@ -61,21 +61,21 @@ contract ERC20Interface {
 //
 // Borrowed from MiniMeToken
 // ----------------------------------------------------------------------------
-contract ApproveAndCallFallBack {
-    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
+interface ApproveAndCallFallBack {
+    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) external;
 }
 
 
 // ----------------------------------------------------------------------------
 // Owned contract
 // ----------------------------------------------------------------------------
-contract Owned {
+abstract contract Owned {
     address public owner;
     address public newOwner;
 
     event OwnershipTransferred(address indexed _from, address indexed _to);
 
-    constructor() public {
+    constructor() {
         owner = msg.sender;
     }
 
@@ -115,7 +115,7 @@ contract TestToken is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    constructor(uint256 chainId_) public {
+    constructor(uint256 chainId_) {
         symbol = "TST";
         name = "Degens Test Token";
         decimals = 18;
@@ -158,7 +158,7 @@ contract TestToken is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     // Total supply
     // ------------------------------------------------------------------------
-    function totalSupply() public view returns (uint) {
+    function totalSupply() public view override returns (uint) {
         return _totalSupply.sub(balances[address(0)]);
     }
 
@@ -166,7 +166,7 @@ contract TestToken is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     // Get the token balance for account `tokenOwner`
     // ------------------------------------------------------------------------
-    function balanceOf(address tokenOwner) public view returns (uint balance) {
+    function balanceOf(address tokenOwner) public view override returns (uint balance) {
         return balances[tokenOwner];
     }
 
@@ -176,7 +176,7 @@ contract TestToken is ERC20Interface, Owned {
     // - Owner's account must have sufficient balance to transfer
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
-    function transfer(address to, uint tokens) public returns (bool success) {
+    function transfer(address to, uint tokens) public override returns (bool success) {
         require(!transferFail, "transfer failure");
         if (transferReturnFalse) return false;
         balances[msg.sender] = balances[msg.sender].sub(tokens);
@@ -194,7 +194,7 @@ contract TestToken is ERC20Interface, Owned {
     // recommends that there are no checks for the approval double-spend attack
     // as this should be implemented in user interfaces 
     // ------------------------------------------------------------------------
-    function approve(address spender, uint tokens) public returns (bool success) {
+    function approve(address spender, uint tokens) public override returns (bool success) {
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
@@ -210,7 +210,7 @@ contract TestToken is ERC20Interface, Owned {
     // - Spender must have sufficient allowance to transfer
     // - 0 value transfers are allowed
     // ------------------------------------------------------------------------
-    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
+    function transferFrom(address from, address to, uint tokens) public override returns (bool success) {
         require(!transferFromFail, "transferFrom failure");
         if (transferFromReturnFalse) return false;
         balances[from] = balances[from].sub(tokens);
@@ -225,7 +225,7 @@ contract TestToken is ERC20Interface, Owned {
     // Returns the amount of tokens approved by the owner that can be
     // transferred to the spender's account
     // ------------------------------------------------------------------------
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining) {
+    function allowance(address tokenOwner, address spender) public view override returns (uint remaining) {
         return allowed[tokenOwner][spender];
     }
 
@@ -246,7 +246,11 @@ contract TestToken is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     // Don't accept ETH
     // ------------------------------------------------------------------------
-    function () external payable {
+    fallback() external {
+        revert();
+    }
+
+    receive() external payable {
         revert();
     }
 
@@ -290,7 +294,7 @@ contract TestToken is ERC20Interface, Owned {
 
         require(holder != address(0), "tst/invalid-address-0");
         require(holder == ecrecover(digest, v, r, s), "tst/invalid-permit");
-        require(expiry == 0 || now <= expiry, "tst/permit-expired");
+        require(expiry == 0 || block.timestamp <= expiry, "tst/permit-expired");
         require(nonce == nonces[holder]++, "tst/invalid-nonce");
         uint wad = allowed_ ? uint(-1) : 0;
         allowed[holder][spender] = wad;

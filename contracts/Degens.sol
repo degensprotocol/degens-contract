@@ -1,6 +1,6 @@
 // Degens Protocol (C) degens.com
 
-pragma solidity ^0.5.10;
+pragma solidity ^0.7.6;
 
 interface IERC20Token {
     function balanceOf(address tokenOwner) external view returns (uint balance);
@@ -16,13 +16,20 @@ contract Degens {
     uint private constant MIN_SANE_AMOUNT = 2;
     uint private constant MAX_PRICE = 1000000000;
 
-    bytes32 private constant EIP712_DOMAIN = keccak256(abi.encode(
-        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-        keccak256("Degens"),
-        keccak256("1.0"),
-        uint256(17), // set chainId at deployment
-        address(0xcf37ae5ee9d0E686c1fC586E32BC5a806A9029A5) // set contractAddr at deployment
-    ));
+    bytes32 immutable private EIP712_DOMAIN;
+
+    constructor() {
+        uint chainId;
+        assembly { chainId := chainid() }
+
+        EIP712_DOMAIN = keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256("Degens"),
+            keccak256("1.0"),
+            chainId,
+            address(this)
+        ));
+    }
 
 
     // Events
@@ -226,8 +233,12 @@ contract Degens {
 
     // External interface
 
-    function() external payable {
+    fallback() external {
         revert("DERR_UNKNOWN_METHOD");
+    }
+
+    receive() payable external {
+        revert("DERR_UNKNOWN_METHOD2");
     }
 
     function trade(uint amount, uint expiry, uint matchId, address token, uint[4][] calldata packedOrders) external {
