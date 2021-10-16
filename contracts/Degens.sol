@@ -1,5 +1,7 @@
 // Degens Protocol (C) degens.com
 
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.7.6;
 
 interface IERC20Token {
@@ -7,6 +9,10 @@ interface IERC20Token {
     function allowance(address tokenOwner, address spender) external view returns (uint remaining);
     function transfer(address to, uint tokens) external returns (bool success);
     function transferFrom(address from, address to, uint tokens) external returns (bool success);
+}
+
+interface ArbSys {
+    function arbBlockNumber() external view returns (uint);
 }
 
 contract Degens {
@@ -89,6 +95,11 @@ contract Degens {
         uint graderFee
     );
 
+    event LogPrevDegensBlock(
+        uint prevDegensBlock,
+        uint currTimestamp
+    );
+
 
     // Storage
 
@@ -103,6 +114,7 @@ contract Degens {
     mapping(uint => Match) private matches;
     mapping(uint => uint) private filledAmounts;
     mapping(address => uint) private cancelTimestamps;
+    uint public prevDegensBlock;
 
 
     // Order
@@ -233,6 +245,17 @@ contract Degens {
 
     // External interface
 
+    modifier logged() {
+        uint currBlock = ArbSys(address(100)).arbBlockNumber();
+
+        if (prevDegensBlock != currBlock) {
+            emit LogPrevDegensBlock(prevDegensBlock, block.timestamp);
+            prevDegensBlock = currBlock;
+        }
+
+        _;
+    }
+
     fallback() external {
         revert("DERR_UNKNOWN_METHOD");
     }
@@ -241,7 +264,7 @@ contract Degens {
         revert("DERR_UNKNOWN_METHOD2");
     }
 
-    function trade(uint amount, uint expiry, uint matchId, address token, uint[4][] calldata packedOrders) external {
+    function trade(uint amount, uint expiry, uint matchId, address token, uint[4][] calldata packedOrders) external logged {
         emit LogRequestTrade(msg.sender);
 
         if (expiry != 0 && block.timestamp >= expiry) {
@@ -271,7 +294,7 @@ contract Degens {
         }
     }
 
-    function matchOrders(uint matchId, address token, uint[4] calldata packedLeftOrder, uint[4][] calldata packedRightOrders) external {
+    function matchOrders(uint matchId, address token, uint[4] calldata packedLeftOrder, uint[4][] calldata packedRightOrders) external logged {
         emit LogRequestMatchOrders(msg.sender);
 
         require(packedRightOrders.length > 0, "DERR_EMPTY_PACKEDRIGHTORDERS");
@@ -340,19 +363,19 @@ contract Degens {
         }
     }
 
-    function cancel(address token, uint amount, uint orderGroup) external {
+    function cancel(address token, uint amount, uint orderGroup) external logged {
         require(orderGroup <= 0xFFFFFFFFFFFFFFFFFFFFFFFF, "DERR_BAD_ORDERGROUP");
         uint fillHash = uint(keccak256(abi.encodePacked(msg.sender, token, amount, orderGroup)));
         filledAmounts[fillHash] = uint(-1);
         emit LogCancel(msg.sender, token, amount, orderGroup);
     }
 
-    function cancelAll() external {
+    function cancelAll() external logged {
         cancelTimestamps[msg.sender] = block.timestamp;
         emit LogCancelAll(msg.sender, block.timestamp);
     }
 
-    function claim(bytes32 witness, uint256 graderQuorum, uint256 graderFee, address[] calldata graders, uint32 finalPrice, uint256[2][] calldata sigs, uint256[] calldata targets) external {
+    function claim(bytes32 witness, uint256 graderQuorum, uint256 graderFee, address[] calldata graders, uint32 finalPrice, uint256[2][] calldata sigs, uint256[] calldata targets) external logged {
         emit LogRequestClaim(msg.sender);
 
         uint matchId = uint(keccak256(abi.encodePacked(witness, graderQuorum, graderFee, graders)));
@@ -397,7 +420,7 @@ contract Degens {
         processClaims(matchId, targets);
     }
 
-    function claimFinalized(uint matchId, uint256[] calldata targets) external {
+    function claimFinalized(uint matchId, uint256[] calldata targets) external logged {
         emit LogRequestClaim(msg.sender);
 
         Match storage m = matches[matchId];
@@ -407,7 +430,7 @@ contract Degens {
         processClaims(matchId, targets);
     }
 
-    function recoverFunds(uint256 detailsHash, uint256 recoveryTime, uint256 cancelPrice, uint256 graderQuorum, uint256 graderFee, address[] calldata graders) external {
+    function recoverFunds(uint256 detailsHash, uint256 recoveryTime, uint256 cancelPrice, uint256 graderQuorum, uint256 graderFee, address[] calldata graders) external logged {
         emit LogRequestRecoverFunds(msg.sender);
 
         bytes32 witness = keccak256(abi.encodePacked(detailsHash, recoveryTime, cancelPrice));

@@ -332,6 +332,8 @@ async function doTest(spec, numTest, totalTests) {
             let expect = action.expectLogs;
             let events = result.events.filter(e => e.event);
 
+            events = events.filter(e => e.event !== 'LogPrevBlock');
+
             if (process.env.VERBOSE) {
                 for (let e of events) console.log(`${e.event} ` + JSON.stringify(e.args, null, 4));
             }
