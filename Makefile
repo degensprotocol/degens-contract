@@ -3,7 +3,7 @@ SOLC ?= solc
 
 ## Build and test
 
-.PHONY: all clean test run_tests check_node_modules check_requires
+.PHONY: all clean test run_tests check_node_modules check_requires artifacts
 
 all: build/Degens.json build/TestToken.json build/QueryDegens.json
 
@@ -60,3 +60,7 @@ coverage: build_coverage run_tests render_coverage_report
 
 profiler: export USE_SOL_PROFILER=1
 profiler: build_coverage run_tests render_coverage_report
+
+artifacts: build/Degens.json
+	mkdir -p artifacts/
+	jq -r '.contracts."contracts/Degens.sol:Degens".abi' < build/Degens.json > artifacts/Degens.json
